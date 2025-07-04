@@ -395,6 +395,41 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 📖 Educational Resources - Learn More About RAG
+
+*Deep dive into RAG technology with our comprehensive learning materials*
+
+### 🍜 Featured Article: "AIおばあちゃんの作り方"
+
+**📝 Beginner-Friendly RAG Tutorial**: We've created a comprehensive, story-driven article that teaches RAG fundamentals through an engaging narrative. Perfect for beginners who want to understand the technology while building a practical AI assistant.
+
+**📍 Location**: [`article/rag-chatbot-story.md`](article/rag-chatbot-story.md)
+
+**🎯 What you'll learn**:
+- RAG concepts explained through storytelling
+- Step-by-step implementation guide
+- Real-world customization examples
+- Best practices and troubleshooting
+- Advanced features and optimization
+
+**📋 Learning Tools**:
+- **Progress Tracking**: [`article/learning-checklist.md`](article/learning-checklist.md)
+- **Guide Overview**: [`article/README.md`](article/README.md)
+
+**🌟 Why read it**:
+- Story-driven approach makes complex concepts enjoyable
+- Written specifically for beginners
+- Includes practical exercises and challenges
+- Covers both theory and hands-on implementation
+
+```bash
+# Start your learning journey
+cd article
+open rag-chatbot-story.md  # or use your preferred markdown viewer
+```
+
+---
+
 ## 🎓 Next Steps - Your Learning Journey
 
 **🚀 You've built your first RAG system! What's next?**
