@@ -5,12 +5,17 @@ RAG server providing question-answering from knowledge base
 
 import os
 import yaml
+import json
+import asyncio
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
-from fastapi import FastAPI, HTTPException, Depends, status
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Depends, status, Form
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
@@ -18,7 +23,11 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from langchain.prompts import PromptTemplate
 from jose import JWTError, jwt
+from langdetect import detect
 from config import Config
+
+# .envファイルを読み込み
+load_dotenv()
 
 
 class QueryRequest(BaseModel):
@@ -42,9 +51,26 @@ class RAGServer:
         self.vector_store_path = Config.VECTOR_STORE_PATH
         self.vector_store = None
         self.qa_chain = None
+        self.streaming_qa_chain = None
         self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
         self.prompt_template = None
+        self.prompt_config = None
         
+    def detect_language(self, text: str) -> str:
+        """Detect language of the input text"""
+        try:
+            detected_lang = detect(text)
+            # Map detected language to our supported languages
+            if detected_lang == 'ja':
+                return 'japanese'
+            elif detected_lang == 'en':
+                return 'english'
+            else:
+                return 'english'  # Default to English for other languages
+        except Exception as e:
+            print(f"⚠️ Language detection error: {e}")
+            return 'english'  # Default to English on error
+    
     def get_system_prompt(self) -> str:
         """Get system prompt"""
         prompt_file_path = Path(Config.PROMPTS_PATH) / Config.PROMPT_FILE
@@ -93,78 +119,91 @@ A knowledgeable assistant that provides helpful and contextual answers based on 
 """
     
     def load_prompt_template(self):
-        """Load prompt template"""
+        """Load prompt template configuration"""
         prompt_file_path = Path(Config.PROMPTS_PATH) / Config.PROMPT_FILE
         
         if not prompt_file_path.exists():
             print(f"⚠️  Prompt file not found: {prompt_file_path}")
-            # Use default prompt
-            self.prompt_template = PromptTemplate(
-                template="Please answer the question based on the following information.\n\n{context}\n\nQuestion: {question}\n\nAnswer:",
-                input_variables=["context", "question"]
-            )
+            # Use default prompt config
+            self.prompt_config = {
+                'name': 'Universal Knowledge Assistant',
+                'description': 'A knowledgeable assistant that provides helpful and contextual answers.',
+                'language': 'auto-detect',
+                'tone': 'friendly',
+                'temperature': 0.3,
+                'system_prompt': 'You are a specialized AI assistant for Japanese cuisine with deep knowledge of authentic Japanese recipes, cooking techniques, and cultural background.',
+                'response_guidelines': []
+            }
             print(f"🔍 Using default prompt: True")
-            print(f"🔍 Default prompt variables: {self.prompt_template.input_variables}")
             return
         
         try:
             with open(prompt_file_path, 'r', encoding='utf-8') as f:
-                prompt_config = yaml.safe_load(f)
+                self.prompt_config = yaml.safe_load(f)
             
-            # Extract response rules from prompt configuration
-            response_guidelines = prompt_config.get('response_guidelines', [])
-            compliance_notes = prompt_config.get('compliance_notes', [])
-            
-            # Create custom prompt template
-            system_prompt = f"""
-あなたは「{prompt_config.get('name', 'Universal Knowledge Assistant')}」です。
-{prompt_config.get('description', '')}
-
-## Operating Policy
-- Language: {prompt_config.get('language', 'ja')}
-- Tone: {prompt_config.get('tone', 'friendly-professional')}
-- Temperature: {prompt_config.get('temperature', 0.3)}
-
-## Response Rules
-"""
-            
-            # Add response rules
-            for rule in response_guidelines:
-                system_prompt += f"- {rule}\n"
-            
-            system_prompt += "\n## Compliance & Ethics\n"
-            for note in compliance_notes:
-                system_prompt += f"- {note}\n"
-            
-            system_prompt += """
-## Response format
-Please answer the question based on the following information, following the rules above。
-
-【Reference Information】
-{context}
-
-【Question】
-{question}
-
-【Answer】
-"""
-            
-            self.prompt_template = PromptTemplate(
-                template=system_prompt,
-                input_variables=["context", "question"]
-            )
-            
-            print("✅ Loaded prompt template")
-            print(f"🔍 Prompt template variables: {self.prompt_template.input_variables}")
+            print("✅ Loaded prompt configuration")
             print(f"🔍 Using default prompt: False")
             
         except Exception as e:
             print(f"❌ プロンプトFile loadingエラー: {e}")
-            # Use default prompt
-            self.prompt_template = PromptTemplate(
+            # Use default prompt config
+            self.prompt_config = {
+                'name': 'Universal Knowledge Assistant',
+                'description': 'A knowledgeable assistant that provides helpful and contextual answers.',
+                'language': 'auto-detect',
+                'tone': 'friendly',
+                'temperature': 0.3,
+                'system_prompt': 'You are a specialized AI assistant for Japanese cuisine with deep knowledge of authentic Japanese recipes, cooking techniques, and cultural background.',
+                'response_guidelines': []
+            }
+    
+    def get_dynamic_prompt_template(self, question: str) -> PromptTemplate:
+        """Generate dynamic prompt template based on question language"""
+        if self.prompt_config is None:
+            # Fallback to default template
+            return PromptTemplate(
                 template="Please answer the question based on the following information.\n\n{context}\n\nQuestion: {question}\n\nAnswer:",
                 input_variables=["context", "question"]
             )
+        
+        # Detect language of the question
+        detected_lang = self.detect_language(question)
+        
+        # Get system prompt from config
+        system_prompt = self.prompt_config.get('system_prompt', '')
+        
+        # Create language-specific prompt
+        if detected_lang == 'japanese':
+            template = f"""{system_prompt}
+
+以下の情報を基に、質問に日本語で答えてください。
+
+【参考情報】
+{{context}}
+
+【質問】
+{{question}}
+
+【回答】
+"""
+        else:  # English or other languages
+            template = f"""{system_prompt}
+
+Please answer the question in English based on the following information.
+
+**Reference Information**
+{{context}}
+
+**Question**
+{{question}}
+
+**Answer**
+"""
+        
+        return PromptTemplate(
+            template=template,
+            input_variables=["context", "question"]
+        )
         
     def load_vector_store(self):
         """Load vector store - implementation to pass tests"""
@@ -182,51 +221,53 @@ Please answer the question based on the following information, following the rul
         if self.vector_store is None:
             raise ValueError("Vector store not loaded")
         
-        if self.prompt_template is None:
-            raise ValueError("Prompt template not loaded")
+        if self.prompt_config is None:
+            raise ValueError("Prompt configuration not loaded")
         
-        llm = ChatOpenAI(
-            model=Config.LLM_MODEL,
-            temperature=Config.LLM_TEMPERATURE
-        )
-        
-        # Configure retriever
-        retriever = self.vector_store.as_retriever(
-            search_kwargs={"k": Config.RETRIEVAL_K}
-        )
-        
-        # Create QA chain using custom prompt
-        # Use basic functionality to avoid prompt issues in latest LangChain
-        self.qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=retriever,
-            return_source_documents=True,
-            verbose=True
-        )
+        # QA chain is no longer needed as we use dynamic prompt templates
+        # All processing is done directly in process_query methods
+        print("✅ Dynamic prompt template setup completed.")
         
     def process_query(self, query: str) -> Dict[str, Any]:
         """Query processing - implementation to pass tests"""
-        if self.qa_chain is None:
-            raise ValueError("QA chain not configured")
+        if self.vector_store is None:
+            raise ValueError("Vector store not loaded")
         
         try:
-            # Prepend system prompt to question
-            system_prompt = self.get_system_prompt()
-            enhanced_query = f"{system_prompt}\n\nQuestion: {query}"
+            # Get dynamic prompt template based on question language
+            prompt_template = self.get_dynamic_prompt_template(query)
             
-            # Execute RetrievalQA chain
-            result = self.qa_chain.invoke({"query": enhanced_query})
+            # Get relevant documents
+            retriever = self.vector_store.as_retriever(
+                search_kwargs={"k": Config.RETRIEVAL_K}
+            )
+            relevant_docs = retriever.get_relevant_documents(query)
             
-            # Extract source documents
+            # Extract source information
             sources = []
-            if "source_documents" in result:
-                for doc in result["source_documents"]:
-                    if "source" in doc.metadata:
-                        sources.append(doc.metadata["source"])
+            for doc in relevant_docs:
+                if "source" in doc.metadata:
+                    sources.append(doc.metadata["source"])
+            
+            # Build context
+            context = "\n\n".join([doc.page_content for doc in relevant_docs])
+            
+            # Generate final query using prompt template
+            final_query = prompt_template.format(
+                context=context,
+                question=query
+            )
+            
+            # Execute LLM
+            llm = ChatOpenAI(
+                model=Config.LLM_MODEL,
+                temperature=Config.LLM_TEMPERATURE
+            )
+            
+            result = llm.invoke(final_query)
             
             return {
-                "answer": result["result"],
+                "answer": result.content,
                 "sources": list(set(sources)),  # Remove duplicates
                 "timestamp": datetime.now().isoformat()
             }
@@ -236,6 +277,78 @@ Please answer the question based on the following information, following the rul
                 status_code=500,
                 detail=f"Process queryエラー: {str(e)}"
             )
+    
+    async def process_query_streaming(self, query: str) -> AsyncGenerator[str, None]:
+        """ストリーミング用クエリ処理"""
+        if self.vector_store is None:
+            raise ValueError("Vector store not loaded")
+        
+        try:
+            # Get dynamic prompt template based on question language
+            prompt_template = self.get_dynamic_prompt_template(query)
+            
+            # ストリーミング処理を開始
+            sources = []
+            
+            # 先に関連ドキュメントを取得
+            retriever = self.vector_store.as_retriever(
+                search_kwargs={"k": Config.RETRIEVAL_K}
+            )
+            relevant_docs = retriever.get_relevant_documents(query)
+            
+            # ソース情報を抽出
+            for doc in relevant_docs:
+                if "source" in doc.metadata:
+                    sources.append(doc.metadata["source"])
+            
+            # コンテキストを構築
+            context = "\n\n".join([doc.page_content for doc in relevant_docs])
+            
+            # プロンプトテンプレートでクエリを構築
+            final_query = prompt_template.format(
+                context=context,
+                question=query
+            )
+            
+            # ストリーミングLLMを直接使用
+            streaming_llm = ChatOpenAI(
+                model=Config.LLM_MODEL,
+                temperature=Config.LLM_TEMPERATURE,
+                streaming=True
+            )
+            
+            # ストリーミング開始通知
+            start_data = {
+                "type": "start",
+                "sources": list(set(sources)),
+                "timestamp": datetime.now().isoformat()
+            }
+            yield f"data: {json.dumps(start_data, ensure_ascii=False)}\n\n"
+            
+            # ストリーミング実行
+            async for chunk in streaming_llm.astream(final_query):
+                if chunk.content:
+                    token_data = {
+                        "type": "token",
+                        "content": chunk.content,
+                        "timestamp": datetime.now().isoformat()
+                    }
+                    yield f"data: {json.dumps(token_data, ensure_ascii=False)}\n\n"
+            
+            # 完了通知
+            complete_data = {
+                "type": "complete",
+                "timestamp": datetime.now().isoformat()
+            }
+            yield f"data: {json.dumps(complete_data, ensure_ascii=False)}\n\n"
+            
+        except Exception as e:
+            error_data = {
+                "type": "error",
+                "message": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+            yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
     
     def initialize(self):
         """Server initialization"""
@@ -289,6 +402,15 @@ app = FastAPI(
     description="Educational RAG system for learning AI development",
     version="1.0.0",
     lifespan=lifespan
+)
+
+# CORSミドルウェアを追加
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 本番環境では適切なオリジンを指定
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 security = HTTPBearer()
@@ -365,8 +487,33 @@ async def query_endpoint(
         )
 
 
+@app.post("/query/stream")
+async def query_stream_endpoint(
+    request: QueryRequest,
+    token_payload: dict = Depends(verify_token)
+):
+    """ストリーミング用クエリエンドポイント"""
+    try:
+        # ストリーミング処理を開始
+        return StreamingResponse(
+            rag_server.process_query_streaming(request.query),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no"  # nginx用のバッファリング無効化
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Streaming query error: {str(e)}"
+        )
+
+
 @app.post("/login")
-async def login(username: str, password: str):
+async def login(username: str = Form(...), password: str = Form(...)):
     """Login endpoint (authentication via environment variables)"""
     # Get authentication information from environment variables
     valid_username = os.getenv("DEMO_USERNAME", "admin")
