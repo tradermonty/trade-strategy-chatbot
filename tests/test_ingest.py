@@ -14,7 +14,7 @@ class TestKnowledgeIngester:
             assert hasattr(ingester, 'vector_store_path')
     
     def test_load_markdown_files(self):
-        """🔴 Red: Markdownファイル読み込みのテスト"""
+        """🔴 Red: MarkdownFile loadingのテスト"""
         with patch('ingest.OpenAIEmbeddings'):
             ingester = KnowledgeIngester()
             files = ingester.load_markdown_files()
@@ -24,7 +24,7 @@ class TestKnowledgeIngester:
             assert any(file.endswith('.md') for file in files)
     
     def test_split_text_into_chunks(self):
-        """🔴 Red: テキスト分割のテスト"""
+        """🔴 Red: Text splittingのテスト"""
         with patch('ingest.OpenAIEmbeddings'):
             ingester = KnowledgeIngester()
             sample_text = "これはテストテキストです。" * 100  # 長いテキスト
@@ -35,7 +35,7 @@ class TestKnowledgeIngester:
             assert all(isinstance(chunk, str) for chunk in chunks)
     
     def test_create_documents_from_chunks(self):
-        """🔴 Red: チャンクからドキュメント作成のテスト"""
+        """🔴 Red: チャンクからDocument creationのテスト"""
         with patch('ingest.OpenAIEmbeddings'):
             ingester = KnowledgeIngester()
             chunks = ["チャンク1", "チャンク2", "チャンク3"]
@@ -88,7 +88,7 @@ class TestKnowledgeIngester:
                 mock_create_docs.return_value = [{'page_content': 'chunk1', 'metadata': {'source': 'test.md'}}]
                 mock_create_vs.return_value = Mock()
                 
-                # ファイル読み込みをモック
+                # File loadingをモック
                 with patch('builtins.open', create=True) as mock_open:
                     mock_open.return_value.__enter__.return_value.read.return_value = "テストファイル内容"
                     

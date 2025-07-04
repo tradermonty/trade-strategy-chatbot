@@ -2,6 +2,8 @@
 
 **A production-ready Retrieval-Augmented Generation (RAG) API system that can be customized for any domain**
 
+🇺🇸 English | [🇯🇵 日本語](README_ja.md)
+
 ## 📖 Overview
 
 The Universal RAG API System is a flexible, domain-agnostic question-answering system built with modern AI technologies. Simply replace the knowledge base and prompts to create a specialized AI assistant for any field - from technical documentation to customer support, legal documents to medical knowledge.

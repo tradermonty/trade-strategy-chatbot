@@ -21,7 +21,7 @@ class RAGQueryCLI:
         
     def login(self, username=None, password=None):
         """ログインしてアクセストークンを取得"""
-        # 環境変数から認証情報を取得（引数で上書き可能）
+        # Get authentication information from environment variables（引数で上書き可能）
         username = username or os.getenv("DEMO_USERNAME", "admin")
         password = password or os.getenv("DEMO_PASSWORD", "change-this-password")
         
@@ -83,7 +83,7 @@ class RAGQueryCLI:
         print("\n" + "="*80)
         print("🎯 RAG Assistant Response")
         print("="*80)
-        print(f"📝 回答: {response_data.get('answer', 'N/A')}")
+        print(f"📝 Answer: {response_data.get('answer', 'N/A')}")
         print()
         
         sources = response_data.get('sources', [])
@@ -191,7 +191,7 @@ def main():
         
         while True:
             try:
-                question = input("\n❓ 質問: ").strip()
+                question = input("\n❓ Question: ").strip()
                 
                 if question.lower() in ['quit', 'exit', 'q']:
                     print("👋 お疲れ様でした！")

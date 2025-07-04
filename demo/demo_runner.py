@@ -192,7 +192,7 @@ def run_comprehensive_demo_tests(server_process):
         # 3. Login endpoint test
         print("\n3️⃣ Login (/login) test")
         print("   " + "-" * 50)
-        # 環境変数から認証情報を取得
+        # Get authentication information from environment variables
         username = os.getenv("DEMO_USERNAME", "admin")
         password = os.getenv("DEMO_PASSWORD", "change-this-password")
         login_data = {"username": username, "password": password}

@@ -19,7 +19,7 @@ class RAGTestCases:
     
     def login(self):
         """Login and get access token"""
-        # 環境変数から認証情報を取得
+        # Get authentication information from environment variables
         username = os.getenv("DEMO_USERNAME", "admin")
         password = os.getenv("DEMO_PASSWORD", "change-this-password")
         login_data = {"username": username, "password": password}

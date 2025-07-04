@@ -1,6 +1,6 @@
 """
-🟢 Green フェーズ: テストを通すための最小限の実装
-RAGサーバーでナレッジベースからの質問応答を提供
+🟢 Green Phase: Minimal implementation to pass tests
+RAG server providing question-answering from knowledge base
 """
 
 import os
@@ -22,23 +22,23 @@ from config import Config
 
 
 class QueryRequest(BaseModel):
-    """クエリリクエストモデル"""
+    """Query request model"""
     query: str
     user_id: str = "default"
 
 
 class QueryResponse(BaseModel):
-    """クエリレスポンスモデル"""
+    """Query response model"""
     answer: str
     sources: List[str] = []
     timestamp: str
 
 
 class RAGServer:
-    """RAGサーバークラス"""
+    """RAG Server class"""
     
     def __init__(self):
-        """イニシャライザー - テストを通すための最小限の実装"""
+        """Initializer - minimal implementation to pass tests"""
         self.vector_store_path = Config.VECTOR_STORE_PATH
         self.vector_store = None
         self.qa_chain = None
@@ -46,18 +46,18 @@ class RAGServer:
         self.prompt_template = None
         
     def get_system_prompt(self) -> str:
-        """システムプロンプトを取得"""
+        """Get system prompt"""
         prompt_file_path = Path(Config.PROMPTS_PATH) / Config.PROMPT_FILE
         
         if not prompt_file_path.exists():
-            return """あなたは「Universal Knowledge Assistant」です。
+            return """You are the "Universal Knowledge Assistant".
 A knowledgeable assistant that provides helpful and contextual answers based on your knowledge base.
 
-## 応答ルール
-- 具体策・チェックリストは箇条書きで表示
+## Response Rules
+- Display concrete measures and checklists in bullet points
 - Reference sources and documents when available
-- 推測やベストプラクティスは ※参考 と明示
-- 日本語で親しみやすく、しかし軽すぎないトーンで回答
+- Mark speculations and best practices with ※Reference
+- Respond in a friendly yet professional tone
 """
         
         try:
@@ -68,18 +68,18 @@ A knowledgeable assistant that provides helpful and contextual answers based on 
             system_prompt = f"""あなたは「{prompt_config.get('name', 'Universal Knowledge Assistant')}」です。
 {prompt_config.get('description', '')}
 
-## 動作ポリシー
-- 言語: {prompt_config.get('language', 'ja')}
-- トーン: {prompt_config.get('tone', 'friendly-professional')}
-- 温度設定: {prompt_config.get('temperature', 0.3)}
+## Operating Policy
+- Language: {prompt_config.get('language', 'ja')}
+- Tone: {prompt_config.get('tone', 'friendly-professional')}
+- Temperature: {prompt_config.get('temperature', 0.3)}
 
-## 応答ルール"""
+## Response Rules"""
             
             response_guidelines = prompt_config.get('response_guidelines', [])
             for rule in response_guidelines:
                 system_prompt += f"\n- {rule}"
             
-            system_prompt += "\n\n## コンプライアンス・倫理"
+            system_prompt += "\n\n## Compliance & Ethics"
             compliance_notes = prompt_config.get('compliance_notes', {})
             for note in compliance_notes:
                 system_prompt += f"\n- {note}"
@@ -87,66 +87,66 @@ A knowledgeable assistant that provides helpful and contextual answers based on 
             return system_prompt
             
         except Exception as e:
-            print(f"❌ システムプロンプト取得エラー: {e}")
-            return """あなたは「Universal Knowledge Assistant」です。
+            print(f"❌ System prompt acquisition error: {e}")
+            return """You are the "Universal Knowledge Assistant".
 A knowledgeable assistant that provides helpful and contextual answers based on your knowledge base.
 """
     
     def load_prompt_template(self):
-        """プロンプトテンプレートの読み込み"""
+        """Load prompt template"""
         prompt_file_path = Path(Config.PROMPTS_PATH) / Config.PROMPT_FILE
         
         if not prompt_file_path.exists():
-            print(f"⚠️  プロンプトファイルが見つかりません: {prompt_file_path}")
-            # デフォルトのプロンプトを使用
+            print(f"⚠️  Prompt file not found: {prompt_file_path}")
+            # Use default prompt
             self.prompt_template = PromptTemplate(
-                template="以下の情報を参考に、質問に日本語で回答してください。\n\n{context}\n\n質問: {question}\n\n回答:",
+                template="Please answer the question based on the following information.\n\n{context}\n\nQuestion: {question}\n\nAnswer:",
                 input_variables=["context", "question"]
             )
-            print(f"🔍 デフォルトプロンプト使用: True")
-            print(f"🔍 デフォルトプロンプトの変数: {self.prompt_template.input_variables}")
+            print(f"🔍 Using default prompt: True")
+            print(f"🔍 Default prompt variables: {self.prompt_template.input_variables}")
             return
         
         try:
             with open(prompt_file_path, 'r', encoding='utf-8') as f:
                 prompt_config = yaml.safe_load(f)
             
-            # プロンプト設定から応答ルールを抽出
+            # Extract response rules from prompt configuration
             response_guidelines = prompt_config.get('response_guidelines', [])
             compliance_notes = prompt_config.get('compliance_notes', [])
             
-            # カスタムプロンプトテンプレートの作成
+            # Create custom prompt template
             system_prompt = f"""
 あなたは「{prompt_config.get('name', 'Universal Knowledge Assistant')}」です。
 {prompt_config.get('description', '')}
 
-## 動作ポリシー
-- 言語: {prompt_config.get('language', 'ja')}
-- トーン: {prompt_config.get('tone', 'friendly-professional')}
-- 温度設定: {prompt_config.get('temperature', 0.3)}
+## Operating Policy
+- Language: {prompt_config.get('language', 'ja')}
+- Tone: {prompt_config.get('tone', 'friendly-professional')}
+- Temperature: {prompt_config.get('temperature', 0.3)}
 
-## 応答ルール
+## Response Rules
 """
             
-            # 応答ルールを追加
+            # Add response rules
             for rule in response_guidelines:
                 system_prompt += f"- {rule}\n"
             
-            system_prompt += "\n## コンプライアンス・倫理\n"
+            system_prompt += "\n## Compliance & Ethics\n"
             for note in compliance_notes:
                 system_prompt += f"- {note}\n"
             
             system_prompt += """
-## 回答フォーマット
-以下の情報を参考に、上記のルールに従って質問に回答してください。
+## Response format
+Please answer the question based on the following information, following the rules above。
 
-【参考情報】
+【Reference Information】
 {context}
 
-【質問】
+【Question】
 {question}
 
-【回答】
+【Answer】
 """
             
             self.prompt_template = PromptTemplate(
@@ -154,22 +154,22 @@ A knowledgeable assistant that provides helpful and contextual answers based on 
                 input_variables=["context", "question"]
             )
             
-            print("✅ プロンプトテンプレートを読み込みました")
-            print(f"🔍 プロンプトテンプレートの変数: {self.prompt_template.input_variables}")
-            print(f"🔍 デフォルトプロンプト使用: False")
+            print("✅ Loaded prompt template")
+            print(f"🔍 Prompt template variables: {self.prompt_template.input_variables}")
+            print(f"🔍 Using default prompt: False")
             
         except Exception as e:
-            print(f"❌ プロンプトファイル読み込みエラー: {e}")
-            # デフォルトのプロンプトを使用
+            print(f"❌ プロンプトFile loadingエラー: {e}")
+            # Use default prompt
             self.prompt_template = PromptTemplate(
-                template="以下の情報を参考に、質問に日本語で回答してください。\n\n{context}\n\n質問: {question}\n\n回答:",
+                template="Please answer the question based on the following information.\n\n{context}\n\nQuestion: {question}\n\nAnswer:",
                 input_variables=["context", "question"]
             )
         
     def load_vector_store(self):
-        """ベクトルストア読み込み - テストを通すための実装"""
+        """Load vector store - implementation to pass tests"""
         if not Path(self.vector_store_path).exists():
-            raise FileNotFoundError(f"ベクトルストアが見つかりません: {self.vector_store_path}")
+            raise FileNotFoundError(f"Vector store not found: {self.vector_store_path}")
         
         self.vector_store = FAISS.load_local(
             self.vector_store_path,
@@ -178,25 +178,25 @@ A knowledgeable assistant that provides helpful and contextual answers based on 
         )
         
     def setup_qa_chain(self):
-        """RetrievalQAセットアップ - テストを通すための実装"""
+        """RetrievalQA setup - implementation to pass tests"""
         if self.vector_store is None:
-            raise ValueError("ベクトルストアが読み込まれていません")
+            raise ValueError("Vector store not loaded")
         
         if self.prompt_template is None:
-            raise ValueError("プロンプトテンプレートが読み込まれていません")
+            raise ValueError("Prompt template not loaded")
         
         llm = ChatOpenAI(
             model=Config.LLM_MODEL,
             temperature=Config.LLM_TEMPERATURE
         )
         
-        # retrieverの設定
+        # Configure retriever
         retriever = self.vector_store.as_retriever(
             search_kwargs={"k": Config.RETRIEVAL_K}
         )
         
-        # カスタムプロンプトを使用してQAチェーンを作成
-        # 最新のLangChainでは、プロンプトの問題を回避するため基本機能を使用
+        # Create QA chain using custom prompt
+        # Use basic functionality to avoid prompt issues in latest LangChain
         self.qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
@@ -206,19 +206,19 @@ A knowledgeable assistant that provides helpful and contextual answers based on 
         )
         
     def process_query(self, query: str) -> Dict[str, Any]:
-        """クエリ処理 - テストを通すための実装"""
+        """Query processing - implementation to pass tests"""
         if self.qa_chain is None:
-            raise ValueError("QAチェーンが設定されていません")
+            raise ValueError("QA chain not configured")
         
         try:
-            # システムプロンプトを質問に前置
+            # Prepend system prompt to question
             system_prompt = self.get_system_prompt()
-            enhanced_query = f"{system_prompt}\n\n質問: {query}"
+            enhanced_query = f"{system_prompt}\n\nQuestion: {query}"
             
-            # RetrievalQAチェーンを実行
+            # Execute RetrievalQA chain
             result = self.qa_chain.invoke({"query": enhanced_query})
             
-            # ソースドキュメントの抽出
+            # Extract source documents
             sources = []
             if "source_documents" in result:
                 for doc in result["source_documents"]:
@@ -227,60 +227,60 @@ A knowledgeable assistant that provides helpful and contextual answers based on 
             
             return {
                 "answer": result["result"],
-                "sources": list(set(sources)),  # 重複除去
+                "sources": list(set(sources)),  # Remove duplicates
                 "timestamp": datetime.now().isoformat()
             }
             
         except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail=f"クエリ処理エラー: {str(e)}"
+                detail=f"Process queryエラー: {str(e)}"
             )
     
     def initialize(self):
-        """サーバー初期化"""
-        print("🔄 RAGサーバーを初期化中...")
+        """Server initialization"""
+        print("🔄 Initializing RAG server...")
         
         try:
             # プロンプトテンプレート読み込み
-            print("📝 プロンプトテンプレートを読み込み中...")
+            print("📝 Loading prompt template...")
             self.load_prompt_template()
-            print("✅ プロンプトテンプレートの読み込みが完了しました。")
+            print("✅ Load prompt templateが完了しました。")
             
             # ベクトルストア読み込み
-            print("📚 ベクトルストアを読み込み中...")
+            print("📚 Loading vector store...")
             self.load_vector_store()
-            print("✅ ベクトルストアの読み込みが完了しました。")
+            print("✅ Vector store loading completed.")
             
             # QAチェーンセットアップ
-            print("🔗 QAチェーンをセットアップ中...")
+            print("🔗 Setting up QA chain...")
             self.setup_qa_chain()
-            print("✅ QAチェーンのセットアップが完了しました。")
+            print("✅ QA chain setup completed.")
             
-            print("🚀 RAGサーバーの初期化が完了しました！")
+            print("🚀 RAG server initialization completed!")
             
         except Exception as e:
-            print(f"❌ サーバー初期化エラー: {e}")
+            print(f"❌ Server initializationエラー: {e}")
             raise
 
 
-# RAGサーバーのインスタンス
+# RAG server instance
 rag_server = RAGServer()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """アプリケーションライフサイクル管理"""
-    # 起動時の処理
+    """Application lifecycle management"""
+    # Startup processing
     try:
         rag_server.initialize()
         yield
     except Exception as e:
-        print(f"❌ サーバー起動エラー: {e}")
+        print(f"❌ Server startup error: {e}")
         raise
     finally:
-        # 終了時の処理（必要に応じて）
-        print("🛑 サーバーを終了しています...")
+        # Shutdown processing (if needed)
+        print("🛑 Shutting down server...")
 
 
 # FastAPIアプリケーション
@@ -295,7 +295,7 @@ security = HTTPBearer()
 
 
 def create_access_token(data: dict) -> str:
-    """アクセストークン作成"""
+    """Create access token"""
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(hours=24)
     to_encode.update({"exp": expire})
@@ -304,7 +304,7 @@ def create_access_token(data: dict) -> str:
 
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """トークン検証"""
+    """Token verification"""
     try:
         payload = jwt.decode(
             credentials.credentials,
@@ -315,14 +315,14 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="無効なトークンです",
+            detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
 
 @app.get("/")
 async def root():
-    """ルートエンドポイント"""
+    """Root endpoint"""
     return {
         "message": "Universal RAG API",
         "version": "1.0.0",
@@ -332,7 +332,7 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """ヘルスチェック - テストを通すための実装"""
+    """Health check - implementation to pass tests"""
     return {
         "status": "ok",
         "timestamp": datetime.now().isoformat(),
@@ -346,9 +346,9 @@ async def query_endpoint(
     request: QueryRequest,
     token_payload: dict = Depends(verify_token)
 ):
-    """クエリエンドポイント - 実際のRAG問い合わせ処理"""
+    """Query endpoint - actual RAG inquiry processing"""
     try:
-        # クエリ処理
+        # Process query
         result = rag_server.process_query(request.query)
         
         return QueryResponse(
@@ -360,14 +360,14 @@ async def query_endpoint(
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"クエリ処理エラー: {str(e)}"
+            detail=f"Process queryエラー: {str(e)}"
         )
 
 
 @app.post("/login")
 async def login(username: str, password: str):
-    """ログインエンドポイント（環境変数による認証）"""
-    # 環境変数から認証情報を取得
+    """Login endpoint (authentication via environment variables)"""
+    # Get authentication information from environment variables
     valid_username = os.getenv("DEMO_USERNAME", "admin")
     valid_password = os.getenv("DEMO_PASSWORD", "change-this-password")
     
@@ -379,7 +379,7 @@ async def login(username: str, password: str):
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="認証情報が正しくありません"
+            detail="Invalid credentials"
         )
 
 

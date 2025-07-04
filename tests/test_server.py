@@ -7,7 +7,7 @@ from server import app, RAGServer
 class TestRAGServer:
     
     def test_rag_server_initialization(self):
-        """🔴 Red: RAGサーバー初期化のテスト"""
+        """🔴 Red: RAGServer initializationのテスト"""
         with patch('server.OpenAIEmbeddings'):
             rag_server = RAGServer()
             assert rag_server is not None
@@ -65,7 +65,7 @@ class TestRAGServer:
             assert rag_server.qa_chain == mock_qa_chain
     
     def test_query_processing(self):
-        """🔴 Red: クエリ処理のテスト"""
+        """🔴 Red: Process queryのテスト"""
         with patch('server.OpenAIEmbeddings'), \
              patch.object(RAGServer, 'get_system_prompt') as mock_get_prompt:
             
@@ -83,7 +83,7 @@ class TestRAGServer:
             rag_server.qa_chain = mock_qa_chain
             mock_get_prompt.return_value = "System prompt"
             
-            # クエリ処理の実行
+            # Process queryの実行
             result = rag_server.process_query("テスト質問")
             
             # 結果の確認
@@ -183,7 +183,7 @@ class TestFastAPIEndpoints:
 class TestJWTAuthentication:
     
     def test_create_access_token(self):
-        """🔴 Red: アクセストークン作成のテスト"""
+        """🔴 Red: Create access tokenのテスト"""
         from server import create_access_token
         
         test_data = {"sub": "test_user", "user_id": "123"}
@@ -194,7 +194,7 @@ class TestJWTAuthentication:
     
     @patch('server.jwt.decode')
     def test_verify_token_valid(self, mock_decode):
-        """🔴 Red: 有効JWTトークン検証のテスト"""
+        """🔴 Red: 有効JWTToken verificationのテスト"""
         from server import verify_token
         from fastapi.security import HTTPAuthorizationCredentials
         
@@ -208,7 +208,7 @@ class TestJWTAuthentication:
     
     @patch('server.jwt.decode')
     def test_verify_token_invalid(self, mock_decode):
-        """🔴 Red: 無効JWTトークン検証のテスト"""
+        """🔴 Red: 無効JWTToken verificationのテスト"""
         from server import verify_token
         from fastapi.security import HTTPAuthorizationCredentials
         from jose import JWTError
