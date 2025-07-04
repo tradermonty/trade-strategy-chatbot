@@ -192,7 +192,10 @@ def run_comprehensive_demo_tests(server_process):
         # 3. Login endpoint test
         print("\n3️⃣ Login (/login) test")
         print("   " + "-" * 50)
-        login_data = {"username": "demo_user", "password": "demo_password"}
+        # 環境変数から認証情報を取得
+        username = os.getenv("DEMO_USERNAME", "admin")
+        password = os.getenv("DEMO_PASSWORD", "change-this-password")
+        login_data = {"username": username, "password": password}
         response = requests.post(f"{base_url}/login", params=login_data)
         
         if response.status_code == 200:
@@ -232,7 +235,7 @@ def run_comprehensive_demo_tests(server_process):
                 
                 query_data = {
                     "query": question["query"],
-                    "user_id": "demo_user"
+                    "user_id": username
                 }
                 
                 try:
@@ -392,7 +395,7 @@ def main():
         print("\n📋 Manual testing information:")
         print("   🔗 Server URL: http://localhost:8000")
         print("   📖 API docs: http://localhost:8000/docs")
-        print("   🔑 Login: username=demo_user, password=demo_password")
+        print(f"   🔑 Login: username={username}, password=***")
         print("   🖥️  Command line: python3 query_cli.py --interactive")
         print("\n💡 Manual server startup:")
         print("   python3 server.py")

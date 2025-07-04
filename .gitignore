@@ -1,9 +1,17 @@
-# 環境変数・機密情報
+# 環境変数・機密情報 (CRITICAL: Never commit these files)
 .env
 .env.local
 .env.*.local
 *.key
 *.pem
+.secrets
+config.ini
+secrets.json
+
+# API Keys and Authentication tokens
+openai_api_key.txt
+jwt_secret.txt
+auth_tokens/
 
 # Python
 __pycache__/

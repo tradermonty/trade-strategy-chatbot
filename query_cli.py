@@ -5,6 +5,7 @@ Universal RAG API - Command Line Query Tool
 
 import argparse
 import json
+import os
 import requests
 import sys
 from datetime import datetime
@@ -18,8 +19,12 @@ class RAGQueryCLI:
         self.base_url = base_url
         self.access_token = None
         
-    def login(self, username="demo_user", password="demo_password"):
+    def login(self, username=None, password=None):
         """ログインしてアクセストークンを取得"""
+        # 環境変数から認証情報を取得（引数で上書き可能）
+        username = username or os.getenv("DEMO_USERNAME", "admin")
+        password = password or os.getenv("DEMO_PASSWORD", "change-this-password")
+        
         try:
             url = f"{self.base_url}/login"
             params = {"username": username, "password": password}

@@ -4,6 +4,7 @@
 Comprehensive test cases for presentations and demos
 """
 
+import os
 import requests
 import json
 import time
@@ -18,7 +19,10 @@ class RAGTestCases:
     
     def login(self):
         """Login and get access token"""
-        login_data = {"username": "demo_user", "password": "demo_password"}
+        # 環境変数から認証情報を取得
+        username = os.getenv("DEMO_USERNAME", "admin")
+        password = os.getenv("DEMO_PASSWORD", "change-this-password")
+        login_data = {"username": username, "password": password}
         response = requests.post(f"{self.base_url}/login", params=login_data)
         
         if response.status_code == 200:

@@ -212,11 +212,44 @@ docker run -p 8000:8000 --env-file .env universal-rag-api
 
 ## 🔒 Security Considerations
 
-- **API Keys**: Store securely using environment variables or secret management systems
-- **JWT Tokens**: Configure appropriate expiration times
-- **HTTPS**: Use TLS/SSL in production environments
-- **Rate Limiting**: Implement to prevent abuse
-- **Input Validation**: Sanitize user queries
+### 🚨 **IMPORTANT: Before Deployment**
+
+1. **⚠️ API Keys Security**:
+   ```bash
+   # ❌ NEVER commit real API keys to git
+   # ✅ Use environment variables
+   export OPENAI_API_KEY=your-real-api-key-here
+   
+   # ✅ Or use secret management systems
+   # AWS Secrets Manager, Azure Key Vault, etc.
+   ```
+
+2. **🔐 Authentication Configuration**:
+   ```bash
+   # Generate secure JWT secret (32+ characters)
+   python3 -c "import secrets; print('JWT_SECRET_KEY=' + secrets.token_hex(32))"
+   
+   # Set secure demo credentials
+   export DEMO_USERNAME=your-admin-username
+   export DEMO_PASSWORD=your-secure-password
+   ```
+
+3. **🛡️ Production Security Checklist**:
+   - [ ] Use HTTPS (TLS/SSL) for all communications
+   - [ ] Generate unique, cryptographically secure JWT secret keys
+   - [ ] Configure authentication credentials via environment variables
+   - [ ] Enable rate limiting for API endpoints
+   - [ ] Implement comprehensive input validation
+   - [ ] Set up proper error handling (avoid information leakage)
+   - [ ] Use secure headers (CORS, CSP, etc.)
+   - [ ] Regular security audits and dependency updates
+
+### 🔧 **Security Configuration**
+
+- **JWT Security**: Tokens expire in 24 hours by default
+- **FAISS Security**: Uses `allow_dangerous_deserialization=True` - ensure trusted data sources
+- **Environment Variables**: All sensitive data configurable via environment variables
+- **Default Credentials**: Changed from hardcoded to environment-based authentication
 
 ## 📈 Monitoring and Logging
 

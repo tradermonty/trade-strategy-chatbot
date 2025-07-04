@@ -90,12 +90,6 @@ A knowledgeable assistant that provides helpful and contextual answers based on 
             print(f"❌ システムプロンプト取得エラー: {e}")
             return """あなたは「Universal Knowledge Assistant」です。
 A knowledgeable assistant that provides helpful and contextual answers based on your knowledge base.
-
-## 応答ルール
-- 具体策・チェックリストは箇条書きで表示
-- Reference sources and documents when available
-- 推測やベストプラクティスは ※参考 と明示
-- 日本語で親しみやすく、しかし軽すぎないトーンで回答
 """
     
     def load_prompt_template(self):
@@ -372,11 +366,14 @@ async def query_endpoint(
 
 @app.post("/login")
 async def login(username: str, password: str):
-    """ログインエンドポイント（デモ用）"""
-    # デモ用の簡単な認証（本番環境では適切な認証を実装）
-    if username == "demo_user" and password == "demo_password":
+    """ログインエンドポイント（環境変数による認証）"""
+    # 環境変数から認証情報を取得
+    valid_username = os.getenv("DEMO_USERNAME", "admin")
+    valid_password = os.getenv("DEMO_PASSWORD", "change-this-password")
+    
+    if username == valid_username and password == valid_password:
         access_token = create_access_token(
-            data={"sub": username, "user_id": "demo_user"}
+            data={"sub": username, "user_id": username}
         )
         return {"access_token": access_token, "token_type": "bearer"}
     else:

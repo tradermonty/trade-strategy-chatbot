@@ -170,9 +170,12 @@ For production deployments:
    python3 -c "import secrets; print(secrets.token_hex(32))"
    ```
 
-2. **Use environment-specific secrets:**
+2. **Configure authentication credentials:**
    ```bash
-   JWT_SECRET_KEY=production-secure-secret-key-here
+   # Set secure authentication (replacing default demo credentials)
+   export DEMO_USERNAME=your-admin-username
+   export DEMO_PASSWORD=your-secure-password
+   export JWT_SECRET_KEY=your-secure-32-character-secret-here
    ```
 
 3. **Consider using secret management:**
