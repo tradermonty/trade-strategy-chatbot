@@ -116,13 +116,13 @@ class TestFastAPIEndpoints:
         
         # テストリクエスト
         headers = {"Authorization": "Bearer valid_token"}
-        payload = {"prompt": "PMBOKについて教えて"}
+        payload = {"query": "What are the main features?", "user_id": "test_user"}
         
         response = self.client.post("/query", json=payload, headers=headers)
         
         assert response.status_code == 200
         assert response.json() == {"answer": "テスト回答"}
-        mock_rag_server.process_query.assert_called_once_with("PMBOKについて教えて")
+        mock_rag_server.process_query.assert_called_once_with("What are the main features?")
     
     @patch('server.verify_jwt_token')
     def test_query_endpoint_unauthorized(self, mock_verify_jwt):

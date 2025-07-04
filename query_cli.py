@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PM実務コンシェルジュ RAG - コマンドライン質問ツール
+Universal RAG API - Command Line Query Tool
 """
 
 import argparse
@@ -11,14 +11,14 @@ from datetime import datetime
 import urllib.parse
 
 
-class PMConsultantCLI:
-    """PM実務コンシェルジュ コマンドラインインターフェース"""
+class RAGQueryCLI:
+    """Universal RAG API Command Line Interface"""
     
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
         self.access_token = None
         
-    def login(self, username="pm_user", password="demo_password"):
+    def login(self, username="demo_user", password="demo_password"):
         """ログインしてアクセストークンを取得"""
         try:
             url = f"{self.base_url}/login"
@@ -76,7 +76,7 @@ class PMConsultantCLI:
             return
             
         print("\n" + "="*80)
-        print("🎯 PM実務コンシェルジュの回答")
+        print("🎯 RAG Assistant Response")
         print("="*80)
         print(f"📝 回答: {response_data.get('answer', 'N/A')}")
         print()
@@ -119,12 +119,12 @@ class PMConsultantCLI:
 def main():
     """メイン処理"""
     parser = argparse.ArgumentParser(
-        description="PM実務コンシェルジュ RAG - コマンドライン質問ツール",
+        description="Universal RAG API - Command Line Query Tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 使用例:
   # 質問を引数で指定
-  python3 query_cli.py "PMBOKにおけるスコープ管理について教えてください"
+  python3 query_cli.py "What are the main features of this system?"
   
   # 対話モードで質問
   python3 query_cli.py --interactive
@@ -137,7 +137,7 @@ def main():
     parser.add_argument(
         "question",
         nargs="?",
-        help="PM実務に関する質問"
+        help="Question to ask the RAG system"
     )
     
     parser.add_argument(
@@ -160,8 +160,8 @@ def main():
     
     args = parser.parse_args()
     
-    # PM実務コンシェルジュCLIを初期化
-    cli = PMConsultantCLI(args.url)
+    # Initialize Universal RAG CLI
+    cli = RAGQueryCLI(args.url)
     
     # ヘルスチェック
     if args.health:
@@ -180,7 +180,7 @@ def main():
     
     # 対話モード
     if args.interactive:
-        print("\n🤖 PM実務コンシェルジュ RAG - 対話モード")
+        print("\n🤖 Universal RAG API - Interactive Mode")
         print("質問を入力してください。終了するには 'quit' または 'exit' を入力してください。")
         print("-" * 60)
         

@@ -47,15 +47,15 @@ class RAGServer:
         
     def get_system_prompt(self) -> str:
         """システムプロンプトを取得"""
-        prompt_file_path = Path(Config.PROMPTS_PATH) / "prompt.yaml"
+        prompt_file_path = Path(Config.PROMPTS_PATH) / Config.PROMPT_FILE
         
         if not prompt_file_path.exists():
-            return """あなたは「PM実務コンシェルジュGPT」です。
-現役プロジェクトマネージャーの日常課題をPMBOK®をはじめとする世界標準・実践知識で伴走支援する相談相手です。
+            return """あなたは「Universal Knowledge Assistant」です。
+A knowledgeable assistant that provides helpful and contextual answers based on your knowledge base.
 
 ## 応答ルール
 - 具体策・チェックリストは箇条書きで表示
-- PMBOK参照箇所は版＋章節を明示
+- Reference sources and documents when available
 - 推測やベストプラクティスは ※参考 と明示
 - 日本語で親しみやすく、しかし軽すぎないトーンで回答
 """
@@ -65,7 +65,7 @@ class RAGServer:
                 prompt_config = yaml.safe_load(f)
             
             # システムプロンプトの構築
-            system_prompt = f"""あなたは「{prompt_config.get('name', 'PM実務コンシェルジュGPT')}」です。
+            system_prompt = f"""あなたは「{prompt_config.get('name', 'Universal Knowledge Assistant')}」です。
 {prompt_config.get('description', '')}
 
 ## 動作ポリシー
@@ -88,19 +88,19 @@ class RAGServer:
             
         except Exception as e:
             print(f"❌ システムプロンプト取得エラー: {e}")
-            return """あなたは「PM実務コンシェルジュGPT」です。
-現役プロジェクトマネージャーの日常課題をPMBOK®をはじめとする世界標準・実践知識で伴走支援する相談相手です。
+            return """あなたは「Universal Knowledge Assistant」です。
+A knowledgeable assistant that provides helpful and contextual answers based on your knowledge base.
 
 ## 応答ルール
 - 具体策・チェックリストは箇条書きで表示
-- PMBOK参照箇所は版＋章節を明示
+- Reference sources and documents when available
 - 推測やベストプラクティスは ※参考 と明示
 - 日本語で親しみやすく、しかし軽すぎないトーンで回答
 """
     
     def load_prompt_template(self):
         """プロンプトテンプレートの読み込み"""
-        prompt_file_path = Path(Config.PROMPTS_PATH) / "prompt.yaml"
+        prompt_file_path = Path(Config.PROMPTS_PATH) / Config.PROMPT_FILE
         
         if not prompt_file_path.exists():
             print(f"⚠️  プロンプトファイルが見つかりません: {prompt_file_path}")
@@ -123,7 +123,7 @@ class RAGServer:
             
             # カスタムプロンプトテンプレートの作成
             system_prompt = f"""
-あなたは「{prompt_config.get('name', 'PM実務コンシェルジュGPT')}」です。
+あなたは「{prompt_config.get('name', 'Universal Knowledge Assistant')}」です。
 {prompt_config.get('description', '')}
 
 ## 動作ポリシー
@@ -291,8 +291,8 @@ async def lifespan(app: FastAPI):
 
 # FastAPIアプリケーション
 app = FastAPI(
-    title="PM実務コンシェルジュ RAG API",
-    description="PM実務に関する質問応答システム",
+    title="Universal RAG API",
+    description="A flexible knowledge-based question answering system",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -330,7 +330,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
 async def root():
     """ルートエンドポイント"""
     return {
-        "message": "PM実務コンシェルジュ RAG API",
+        "message": "Universal RAG API",
         "version": "1.0.0",
         "status": "running"
     }
@@ -374,7 +374,7 @@ async def query_endpoint(
 async def login(username: str, password: str):
     """ログインエンドポイント（デモ用）"""
     # デモ用の簡単な認証（本番環境では適切な認証を実装）
-    if username == "pm_user" and password == "demo_password":
+    if username == "demo_user" and password == "demo_password":
         access_token = create_access_token(
             data={"sub": username, "user_id": "demo_user"}
         )
@@ -389,7 +389,7 @@ async def login(username: str, password: str):
 if __name__ == "__main__":
     import uvicorn
     
-    print("🚀 PM実務コンシェルジュ RAGサーバーを起動中...")
+    print("🚀 Universal RAG Server starting...")
     uvicorn.run(
         app,
         host=Config.HOST,

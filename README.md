@@ -1,25 +1,25 @@
-# 🎯 PM実務コンシェルジュ RAG システム
+# 🚀 Universal RAG API System
 
-**TDD手法で開発された現役PM向けの実務知識問い合わせシステム**
+**A production-ready Retrieval-Augmented Generation (RAG) API system that can be customized for any domain**
 
-![PM Consultant](icons/20250703_0708_プロジェクト達成アイコン_simple_compose_01jz89v2grepev2navkn3aktqb.png)
+## 📖 Overview
 
-## 📖 概要
+The Universal RAG API System is a flexible, domain-agnostic question-answering system built with modern AI technologies. Simply replace the knowledge base and prompts to create a specialized AI assistant for any field - from technical documentation to customer support, legal documents to medical knowledge.
 
-PM実務コンシェルジュRAGシステムは、プロジェクトマネージャーの実務を支援するAI問い合わせシステムです。PMBOK、アジャイル開発、リスク管理などの専門知識を統合し、実践的なアドバイスを提供します。
+### 🎯 Key Features
 
-### 🎯 主要機能
+- **🧠 Domain-Agnostic Design**: Easily adaptable to any knowledge domain
+- **🔍 Advanced RAG Technology**: LangChain + FAISS + OpenAI Embeddings
+- **🔐 JWT Authentication**: Secure API access out of the box
+- **⚡ High Performance**: Optimized for fast response times
+- **📚 Flexible Knowledge Base**: Support for Markdown documents
+- **🎨 Customizable Prompts**: YAML-based prompt configuration
+- **🏗️ Production-Ready**: Built with FastAPI for scalability
 
-- **🧠 専門知識問い合わせ**: PMBOK、アジャイル、IT業界のベストプラクティス
-- **🔍 RAG技術**: LangChain + FAISS + OpenAI Embeddings
-- **🔐 JWT認証**: セキュアなAPI アクセス
-- **⚡ 高速レスポンス**: 平均7秒以内の回答
-- **📚 多様なソース**: 9つの専門ナレッジファイル統合
-
-## 🏗️ アーキテクチャ
+## 🏗️ Architecture
 
 ```
-📱 Client Interface
+📱 Client Application
     ↓
 🌐 FastAPI Server (server.py)
     ↓
@@ -27,223 +27,242 @@ PM実務コンシェルジュRAGシステムは、プロジェクトマネージ
     ↓
 📊 FAISS Vector Store
     ↓
-📚 Knowledge Base (9 Markdown files)
+📚 Knowledge Base (Markdown files)
 ```
 
-### 🔧 技術スタック
+### 🔧 Technology Stack
 
 - **Backend**: FastAPI + Uvicorn
 - **RAG Engine**: LangChain + RetrievalQA
 - **Vector DB**: FAISS (Facebook AI Similarity Search)
 - **Embeddings**: OpenAI text-embedding-3-small
-- **LLM**: OpenAI GPT-4
+- **LLM**: OpenAI GPT-4 (configurable)
 - **Authentication**: JWT (JSON Web Tokens)
-- **Testing**: pytest + TDD
+- **Testing**: pytest + TDD methodology
 
-## 🚀 クイックスタート
+## 🚀 Quick Start
 
-### 1. 環境構築
+### 1. Environment Setup
 
 ```bash
-# リポジトリクローン
+# Clone repository
 git clone <repository-url>
-cd project-management-agent
+cd rag-api
 
-# Python仮想環境作成（Python 3.11推奨）
+# Create Python virtual environment (Python 3.11 recommended)
 python3.11 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# 依存関係インストール
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. 環境変数設定
+### 2. Configuration
 
-`.env`ファイルを作成：
+Create a `.env` file:
 
 ```env
 OPENAI_API_KEY=your-openai-api-key-here
 JWT_SECRET_KEY=your-jwt-secret-key
+
+# Optional configurations
+CHUNK_SIZE=800
+CHUNK_OVERLAP=100
+RETRIEVAL_K=6
+LLM_TEMPERATURE=0.3
+LLM_MODEL=gpt-4
 ```
 
-### 3. ベクトルストア作成（初回のみ）
+### 3. Prepare Your Knowledge Base
+
+1. Clear the existing knowledge base:
+   ```bash
+   rm knowledge/*.md
+   ```
+
+2. Add your domain-specific documents:
+   ```bash
+   cp /path/to/your/documents/*.md knowledge/
+   ```
+
+3. Customize the prompt configuration:
+   ```bash
+   vim prompt/prompt.yaml
+   ```
+
+### 4. Build Vector Store
 
 ```bash
 python3 run_etl.py
 ```
 
-### 4. サーバー起動
+### 5. Start the Server
 
 ```bash
 python3 server.py
 ```
 
-### 5. 動作確認
+### 6. Test the API
 
 ```bash
-# ヘルスチェック
+# Health check
 curl http://localhost:8000/health
 
-# コマンドライン質問ツール
-python3 query_cli.py "PMBOKとは何ですか？"
+# Command-line query tool
+python3 query_cli.py "Your question here"
 
-# 対話モード
+# Interactive mode
 python3 query_cli.py --interactive
 ```
 
-## 🎪 デモ・プレゼンテーション
+## 🎨 Customization Guide
 
-### 包括的ライブデモ
+### Adapting to Your Domain
 
-```bash
-# 全機能自動テストデモ
-python3 demo_runner.py
+1. **Knowledge Base**: Place your Markdown documents in the `knowledge/` directory
+2. **Prompt Engineering**: Edit `prompt/prompt.yaml` to define your AI assistant's behavior
+3. **Model Selection**: Update `LLM_MODEL` in `.env` (e.g., gpt-4, gpt-3.5-turbo)
+4. **Embedding Strategy**: Adjust `CHUNK_SIZE` and `CHUNK_OVERLAP` for your content type
 
-# ETL処理をスキップして高速デモ
-python3 demo_runner.py --skip-etl
+### Example Domains
 
-# インタラクティブモード（手動テスト用）
-python3 demo_runner.py --interactive
-```
+- **Technical Documentation**: Software manuals, API docs, troubleshooting guides
+- **Customer Support**: FAQs, product information, support procedures
+- **Legal Documents**: Contracts, policies, regulatory compliance
+- **Medical Knowledge**: Clinical guidelines, drug information, protocols
+- **Educational Content**: Course materials, textbooks, research papers
 
-### プレゼンテーション用テストケース
+## 📊 API Specification
 
-```bash
-# ライブプレゼンテーション用デモ
-python3 test_cases.py --demo
+### Endpoints
 
-# カテゴリ別ベンチマークテスト
-python3 test_cases.py --benchmark
-```
+- `GET /` - Root endpoint
+- `GET /health` - Health check
+- `POST /login` - JWT authentication
+- `POST /query` - Submit questions and get answers
 
-## 📊 デモ結果サンプル
-
-### ✅ システム性能
-- **処理文書**: 9つのMarkdownファイル → 502チャンク
-- **平均レスポンス**: 7.51秒
-- **回答品質**: 196-578文字の詳細回答
-- **ソース統合**: 最大4つのナレッジファイルから統合
-
-### 🎯 対応可能な質問カテゴリ
-
-| カテゴリ | 例 |
-|---------|-----|
-| **PMベーシック** | プロジェクトの三大制約、PM責任 |
-| **アジャイル実践** | スクラム、スプリント、ベロシティ |
-| **IT業界特化** | DevOps、クラウド移行、SaaS開発 |
-| **リスク管理** | リスクレジスタ、遅延対策 |
-| **ステークホルダー管理** | コンフリクト解決、コミュニケーション |
-
-## 🧪 テスト
-
-### 単体テスト実行
+### Query API Example
 
 ```bash
-# 全テスト実行
-python3 -m pytest tests/ -v
+# Login
+curl -X POST "http://localhost:8000/login?username=demo_user&password=demo_password"
 
-# ETL処理テスト
-python3 -m pytest tests/test_ingest.py -v
-
-# サーバーテスト
-python3 -m pytest tests/test_server.py -v
-```
-
-### TDD開発履歴
-
-1. **Phase 1**: ETL処理 (ingest.py) - Red-Green-Refactor x5回
-2. **Phase 2**: RAGサーバー (server.py) - Red-Green-Refactor x6回
-3. **Phase 3**: 統合テスト・デモ完成
-
-## 🔧 API仕様
-
-### エンドポイント
-
-- `GET /` - ルートエンドポイント
-- `GET /health` - ヘルスチェック
-- `POST /login` - JWT認証ログイン
-- `POST /query` - PM実務質問・回答
-
-### API使用例
-
-```bash
-# ログイン
-curl -X POST "http://localhost:8000/login?username=pm_user&password=demo_password"
-
-# 質問送信
+# Submit query
 curl -X POST "http://localhost:8000/query" \
   -H "Authorization: Bearer <JWT_TOKEN>" \
   -H "Content-Type: application/json" \
-  -d '{"query": "アジャイル開発のリスク管理は？", "user_id": "test"}'
+  -d '{"query": "Your question here", "user_id": "user123"}'
 ```
 
-## 📚 ナレッジベース
+### Response Format
 
-システムには以下9つの専門ナレッジファイルが統合されています：
+```json
+{
+  "answer": "The detailed answer to your question...",
+  "sources": ["document1.md", "document2.md"],
+  "timestamp": "2025-01-04T10:30:00"
+}
+```
 
-1. **PMBOK第6-8版構造比較** - PMBOK進化の全体像
-2. **PMBOK GPT知識設計** - AI×PM知識体系
-3. **PMBOK×PRINCE2×ITIL 4×ISO 21502マッピング** - 標準の統合比較
-4. **PMIコンパニオン標準（IT業界向け）** - IT特化のPM標準
-5. **Software & SaaS業界PMベストプラクティス** - 実践的Q&A
-6. **プロジェクトスケジューリング・リスク管理** - 詳細調査
-7. **IT業界PMリソース** - 最新動向・ツール
-8. **AI・ハイブリッドワーク・ESG影響** - 現代PM課題
-9. **PMP・PgMP学習ロードマップ** - 資格取得ガイド
+## 🧪 Testing
 
-## 🎯 プレゼンテーション・ハイライト
+```bash
+# Run all tests
+python3 -m pytest tests/ -v
 
-### 🏆 TDD成功ストーリー
-- **10回以上のRed-Green-Refactorサイクル**
-- **テストファースト開発**で堅牢性確保
-- **継続的リファクタリング**でコード品質向上
+# Run specific test modules
+python3 -m pytest tests/test_ingest.py -v
+python3 -m pytest tests/test_server.py -v
+```
 
-### 🚀 技術的成果
-- **LangChain RAG**の実装
-- **FAISS**による高速ベクトル検索
-- **JWT認証**によるセキュリティ
-- **FastAPI**の非同期処理
+## 🎯 Performance Optimization
 
-### 📈 ビジネス価値
-- **PM実務の効率化** - 即座に専門知識にアクセス
-- **判断支援** - 複数ソースからの統合回答
-- **学習支援** - 体系的な知識提供
-- **チーム共有** - 標準化された知識ベース
+### Vector Store Optimization
 
-## 🔮 次のステップ
+- **Chunk Size**: Adjust based on your content structure (default: 800 tokens)
+- **Overlap**: Ensure context continuity (default: 100 tokens)
+- **Retrieval Count**: Balance between context and performance (default: 6 chunks)
 
-### Option B: 機能拡張
-- **プロンプト系統強化** - prompt/project_management_prompt.yaml活用
-- **ログ機能** - 使用状況・品質分析
-- **エラーハンドリング強化** - 例外処理・フォールバック
+### LLM Configuration
 
-### Option C: Docker化・MCP連携
-- **Docker化** - ポータブルなデプロイメント
-- **MCP統合** - Model Context Protocol対応
-- **クラウド展開** - AWS/GCP/Azure対応
+- **Temperature**: Lower for factual responses (0.1-0.3), higher for creative (0.7-0.9)
+- **Model Selection**: GPT-4 for complex reasoning, GPT-3.5-turbo for speed
 
-## 🤝 コントリビューション
+## 🐳 Docker Deployment
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+RUN python3 run_etl.py
+
+EXPOSE 8000
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+Build and run:
+```bash
+docker build -t universal-rag-api .
+docker run -p 8000:8000 --env-file .env universal-rag-api
+```
+
+## 🔒 Security Considerations
+
+- **API Keys**: Store securely using environment variables or secret management systems
+- **JWT Tokens**: Configure appropriate expiration times
+- **HTTPS**: Use TLS/SSL in production environments
+- **Rate Limiting**: Implement to prevent abuse
+- **Input Validation**: Sanitize user queries
+
+## 📈 Monitoring and Logging
+
+- **Request Logging**: Track API usage and performance
+- **Error Monitoring**: Capture and alert on failures
+- **Vector Store Metrics**: Monitor retrieval effectiveness
+- **LLM Usage**: Track token consumption and costs
+
+## 🚀 Scaling Strategies
+
+1. **Horizontal Scaling**: Deploy multiple API instances behind a load balancer
+2. **Vector Store**: Consider migration to distributed solutions (Chroma, Pinecone)
+3. **Caching**: Implement Redis for frequent queries
+4. **Async Processing**: Use background jobs for heavy operations
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Write tests first (TDD approach)
+3. Write tests using TDD approach
 4. Implement your feature
 5. Commit your changes (`git commit -m 'Add amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
 
-## 📄 ライセンス
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📞 サポート
+## 🛠️ Troubleshooting
 
-- **Issues**: GitHub Issues
-- **Documentation**: このREADME
-- **Demo**: `python3 demo_runner.py`
+### Common Issues
+
+1. **Import Errors**: Ensure virtual environment is activated
+2. **API Key Issues**: Verify OPENAI_API_KEY is set correctly
+3. **Memory Errors**: Reduce chunk size or implement batch processing
+4. **Slow Responses**: Consider using GPT-3.5-turbo or implementing caching
+
+### Getting Help
+
+- **Documentation**: This README and inline code comments
+- **Issues**: GitHub Issues for bug reports and feature requests
+- **Demos**: Run `python3 demo_runner.py` for interactive examples
 
 ---
 
-**🎯 現役PMの、現役PMによる、現役PMのためのRAGシステム**
+**🚀 Build your own domain-specific AI assistant in minutes!**
 
-*Developed with ❤️ using TDD methodology* 
+*Powered by LangChain, FastAPI, and OpenAI*

@@ -11,7 +11,7 @@ from ingest import KnowledgeIngester
 
 def main():
     """ETL処理を実行"""
-    print("🚀 PM Knowledge ETL処理を開始します...")
+    print("🚀 Knowledge ETL processing started...")
     
     # 出力ディレクトリの確認・作成
     vector_store_path = Path("vector_store")
