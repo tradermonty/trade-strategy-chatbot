@@ -6,6 +6,8 @@
 
 🇺🇸 English | [🇯🇵 日本語](README_ja.md)
 
+**🔗 Repository**: https://github.com/takusaotome/rag-starter-kit
+
 ## 📖 Overview
 
 The RAG Starter Kit is designed to help developers learn and understand RAG technology through hands-on implementation. Perfect for students, educators, and developers new to AI who want to build their first intelligent assistant.
@@ -78,7 +80,7 @@ A complete AI assistant that can answer questions about your custom knowledge ba
 
 ```bash
 # Clone the starter kit
-git clone <repository-url>
+git clone https://github.com/takusaotome/rag-starter-kit.git
 cd rag-starter-kit
 
 # Create Python virtual environment (Python 3.11 recommended)
