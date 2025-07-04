@@ -4,6 +4,7 @@ RAGサーバーでナレッジベースからの質問応答を提供
 """
 
 import os
+import yaml
 from pathlib import Path
 from typing import Dict, List, Any
 from contextlib import asynccontextmanager
@@ -15,6 +16,7 @@ from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
+from langchain.prompts import PromptTemplate
 from jose import JWTError, jwt
 from config import Config
 
@@ -41,6 +43,134 @@ class RAGServer:
         self.vector_store = None
         self.qa_chain = None
         self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+        self.prompt_template = None
+        
+    def get_system_prompt(self) -> str:
+        """システムプロンプトを取得"""
+        prompt_file_path = Path(Config.PROMPTS_PATH) / "prompt.yaml"
+        
+        if not prompt_file_path.exists():
+            return """あなたは「PM実務コンシェルジュGPT」です。
+現役プロジェクトマネージャーの日常課題をPMBOK®をはじめとする世界標準・実践知識で伴走支援する相談相手です。
+
+## 応答ルール
+- 具体策・チェックリストは箇条書きで表示
+- PMBOK参照箇所は版＋章節を明示
+- 推測やベストプラクティスは ※参考 と明示
+- 日本語で親しみやすく、しかし軽すぎないトーンで回答
+"""
+        
+        try:
+            with open(prompt_file_path, 'r', encoding='utf-8') as f:
+                prompt_config = yaml.safe_load(f)
+            
+            # システムプロンプトの構築
+            system_prompt = f"""あなたは「{prompt_config.get('name', 'PM実務コンシェルジュGPT')}」です。
+{prompt_config.get('description', '')}
+
+## 動作ポリシー
+- 言語: {prompt_config.get('language', 'ja')}
+- トーン: {prompt_config.get('tone', 'friendly-professional')}
+- 温度設定: {prompt_config.get('temperature', 0.3)}
+
+## 応答ルール"""
+            
+            response_guidelines = prompt_config.get('response_guidelines', [])
+            for rule in response_guidelines:
+                system_prompt += f"\n- {rule}"
+            
+            system_prompt += "\n\n## コンプライアンス・倫理"
+            compliance_notes = prompt_config.get('compliance_notes', {})
+            for note in compliance_notes:
+                system_prompt += f"\n- {note}"
+            
+            return system_prompt
+            
+        except Exception as e:
+            print(f"❌ システムプロンプト取得エラー: {e}")
+            return """あなたは「PM実務コンシェルジュGPT」です。
+現役プロジェクトマネージャーの日常課題をPMBOK®をはじめとする世界標準・実践知識で伴走支援する相談相手です。
+
+## 応答ルール
+- 具体策・チェックリストは箇条書きで表示
+- PMBOK参照箇所は版＋章節を明示
+- 推測やベストプラクティスは ※参考 と明示
+- 日本語で親しみやすく、しかし軽すぎないトーンで回答
+"""
+    
+    def load_prompt_template(self):
+        """プロンプトテンプレートの読み込み"""
+        prompt_file_path = Path(Config.PROMPTS_PATH) / "prompt.yaml"
+        
+        if not prompt_file_path.exists():
+            print(f"⚠️  プロンプトファイルが見つかりません: {prompt_file_path}")
+            # デフォルトのプロンプトを使用
+            self.prompt_template = PromptTemplate(
+                template="以下の情報を参考に、質問に日本語で回答してください。\n\n{context}\n\n質問: {question}\n\n回答:",
+                input_variables=["context", "question"]
+            )
+            print(f"🔍 デフォルトプロンプト使用: True")
+            print(f"🔍 デフォルトプロンプトの変数: {self.prompt_template.input_variables}")
+            return
+        
+        try:
+            with open(prompt_file_path, 'r', encoding='utf-8') as f:
+                prompt_config = yaml.safe_load(f)
+            
+            # プロンプト設定から応答ルールを抽出
+            response_guidelines = prompt_config.get('response_guidelines', [])
+            compliance_notes = prompt_config.get('compliance_notes', [])
+            
+            # カスタムプロンプトテンプレートの作成
+            system_prompt = f"""
+あなたは「{prompt_config.get('name', 'PM実務コンシェルジュGPT')}」です。
+{prompt_config.get('description', '')}
+
+## 動作ポリシー
+- 言語: {prompt_config.get('language', 'ja')}
+- トーン: {prompt_config.get('tone', 'friendly-professional')}
+- 温度設定: {prompt_config.get('temperature', 0.3)}
+
+## 応答ルール
+"""
+            
+            # 応答ルールを追加
+            for rule in response_guidelines:
+                system_prompt += f"- {rule}\n"
+            
+            system_prompt += "\n## コンプライアンス・倫理\n"
+            for note in compliance_notes:
+                system_prompt += f"- {note}\n"
+            
+            system_prompt += """
+## 回答フォーマット
+以下の情報を参考に、上記のルールに従って質問に回答してください。
+
+【参考情報】
+{context}
+
+【質問】
+{question}
+
+【回答】
+"""
+            
+            self.prompt_template = PromptTemplate(
+                template=system_prompt,
+                input_variables=["context", "question"]
+            )
+            
+            print("✅ プロンプトテンプレートを読み込みました")
+            print(f"🔍 プロンプトテンプレートの変数: {self.prompt_template.input_variables}")
+            print(f"🔍 デフォルトプロンプト使用: False")
+            
+        except Exception as e:
+            print(f"❌ プロンプトファイル読み込みエラー: {e}")
+            # デフォルトのプロンプトを使用
+            self.prompt_template = PromptTemplate(
+                template="以下の情報を参考に、質問に日本語で回答してください。\n\n{context}\n\n質問: {question}\n\n回答:",
+                input_variables=["context", "question"]
+            )
         
     def load_vector_store(self):
         """ベクトルストア読み込み - テストを通すための実装"""
@@ -58,6 +188,9 @@ class RAGServer:
         if self.vector_store is None:
             raise ValueError("ベクトルストアが読み込まれていません")
         
+        if self.prompt_template is None:
+            raise ValueError("プロンプトテンプレートが読み込まれていません")
+        
         llm = ChatOpenAI(
             model=Config.LLM_MODEL,
             temperature=Config.LLM_TEMPERATURE
@@ -68,11 +201,14 @@ class RAGServer:
             search_kwargs={"k": Config.RETRIEVAL_K}
         )
         
+        # カスタムプロンプトを使用してQAチェーンを作成
+        # 最新のLangChainでは、プロンプトの問題を回避するため基本機能を使用
         self.qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
             retriever=retriever,
-            return_source_documents=True
+            return_source_documents=True,
+            verbose=True
         )
         
     def process_query(self, query: str) -> Dict[str, Any]:
@@ -81,7 +217,12 @@ class RAGServer:
             raise ValueError("QAチェーンが設定されていません")
         
         try:
-            result = self.qa_chain.invoke({"query": query})
+            # システムプロンプトを質問に前置
+            system_prompt = self.get_system_prompt()
+            enhanced_query = f"{system_prompt}\n\n質問: {query}"
+            
+            # RetrievalQAチェーンを実行
+            result = self.qa_chain.invoke({"query": enhanced_query})
             
             # ソースドキュメントの抽出
             sources = []
@@ -107,6 +248,11 @@ class RAGServer:
         print("🔄 RAGサーバーを初期化中...")
         
         try:
+            # プロンプトテンプレート読み込み
+            print("📝 プロンプトテンプレートを読み込み中...")
+            self.load_prompt_template()
+            print("✅ プロンプトテンプレートの読み込みが完了しました。")
+            
             # ベクトルストア読み込み
             print("📚 ベクトルストアを読み込み中...")
             self.load_vector_store()
