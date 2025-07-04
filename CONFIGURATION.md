@@ -1,6 +1,6 @@
-# Universal RAG API - Configuration Guide
+# RAG Starter Kit - Configuration Guide
 
-This guide explains how to configure the Universal RAG API for different domains and use cases.
+This guide explains how to configure the RAG Starter Kit for different domains and use cases.
 
 ## 📁 Configuration Files Overview
 

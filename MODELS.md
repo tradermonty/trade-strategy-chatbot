@@ -1,6 +1,6 @@
 # OpenAI Models Guide - January 2025
 
-This guide provides an overview of the latest OpenAI models available for the Universal RAG API system.
+This guide provides an overview of the latest OpenAI models available for the RAG Starter Kit system.
 
 ## 🚀 Latest OpenAI Models (January 2025)
 

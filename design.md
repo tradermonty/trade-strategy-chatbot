@@ -1,24 +1,29 @@
-# Universal RAG API System Design Document
+# RAG Starter Kit Design Document
 
-**Version 2.0 — 2025-01-04**
+**Version 2.0 — 2025-07-04**
 
-A flexible, production-ready Retrieval-Augmented Generation (RAG) API system that can be customized for any domain or use case.
+An educational, beginner-friendly Retrieval-Augmented Generation (RAG) starter template designed for learning and understanding RAG technology through hands-on implementation.
 
 ---
 
 ## 1. System Overview
 
-The Universal RAG API System is designed to provide intelligent question-answering capabilities for any knowledge domain. By leveraging state-of-the-art RAG technology, it combines the power of vector search with large language models to deliver accurate, contextual responses.
+The RAG Starter Kit is designed to help developers learn RAG technology by building their own AI assistant. By providing a complete, working example with Japanese recipe knowledge base, it serves as an educational foundation for understanding RAG concepts and implementation patterns.
 
 ### Core Principles
 
-- **Domain Agnostic**: Works with any type of content or knowledge base
-- **Plug-and-Play**: Easy to deploy and customize
-- **Production Ready**: Built for scale and reliability
-- **Secure by Default**: JWT authentication and configurable access control
-- **Extensible**: Modular architecture for easy enhancements
+- **Educational First**: Clear, commented code with step-by-step explanations
+- **Hands-On Learning**: Learn RAG concepts by building a working system
+- **Quick Start**: From zero to working AI assistant in 10 minutes
+- **Customizable**: Easy to adapt for your own knowledge domains
+- **Best Practices**: Modern Python, FastAPI, and AI development patterns
+- **Bridge to Production**: Foundation for more complex systems
 
-### System Architecture
+## 2. Learning Architecture
+
+### 2.1 System Architecture
+
+*Understanding how RAG systems work under the hood*
 
 ```text
 ┌─────────────┐      HTTPS (JSON)      ┌───────────────────────┐
@@ -39,45 +44,48 @@ The Universal RAG API System is designed to provide intelligent question-answeri
 
 ---
 
-## 2. Directory Structure
+## 3. Directory Structure
 
 ```
-rag-api/
+rag-starter-kit/
 │
-├── knowledge/               # Your domain-specific documents
-│   ├── document1.md
-│   ├── document2.md
-│   └── ...
+├── knowledge/               # Learning knowledge base (Japanese recipes included)
+│   ├── 01_basic_rice_dishes.md
+│   ├── 02_noodle_dishes.md
+│   └── ... (replace with your own documents)
 │
-├── prompt/                  # Prompt configuration
+├── prompt/                  # Prompt configuration for learning
 │   └── prompt.yaml         # Customizable system prompts
 │
-├── vector_store/           # Generated vector embeddings
+├── vector_store/           # Generated vector embeddings (auto-created)
 │   ├── index.faiss
 │   └── index.pkl
 │
-├── src/                    # Source code
-│   ├── ingest.py          # Document processing pipeline
+├── src/                    # Source code (well-commented for learning)
+│   ├── run_etl.py         # Document processing pipeline
 │   ├── server.py          # FastAPI application
 │   ├── config.py          # Configuration management
 │   ├── query_cli.py       # Command-line interface
 │   └── demo_runner.py     # Demo and testing tool
 │
-├── tests/                  # Test suite
+├── tests/                  # Test suite (TDD examples)
 │   ├── test_ingest.py
 │   └── test_server.py
 │
 ├── requirements.txt        # Python dependencies
 ├── .env.example           # Environment variable template
+├── README.md              # Getting started guide
+├── README_ja.md           # Japanese version
+├── design.md              # This design document
 ├── Dockerfile             # Container configuration
 └── docker-compose.yml     # Multi-container setup
 ```
 
 ---
 
-## 3. Component Architecture
+## 4. Component Architecture
 
-### 3.1 Document Processing Pipeline
+### 4.1 Document Processing Pipeline
 
 | Component | Technology | Configuration | Purpose |
 |-----------|-----------|---------------|---------|
@@ -86,7 +94,7 @@ rag-api/
 | **Embeddings** | OpenAI text-embedding-3-small | Dimension: 1536 | Generates vector representations |
 | **Vector Store** | FAISS | Flat index, L2 distance | Enables similarity search |
 
-### 3.2 Query Processing Pipeline
+### 4.2 Query Processing Pipeline
 
 | Component | Technology | Configuration | Purpose |
 |-----------|-----------|---------------|---------|
@@ -96,7 +104,7 @@ rag-api/
 | **LLM Integration** | OpenAI GPT-4 | temperature=0.3 | Generates responses |
 | **Prompt Manager** | YAML + Jinja2 | Customizable templates | Domain-specific behavior |
 
-### 3.3 Configuration System
+### 4.3 Configuration System
 
 ```python
 # Environment Variables (.env)
@@ -115,9 +123,9 @@ KNOWLEDGE_PATH=knowledge      # Knowledge base location
 
 ---
 
-## 4. API Specification
+## 5. API Specification
 
-### 4.1 Authentication Flow
+### 5.1 Authentication Flow
 
 ```mermaid
 sequenceDiagram
@@ -127,7 +135,7 @@ sequenceDiagram
     API->>Client: {answer, sources, timestamp}
 ```
 
-### 4.2 Endpoints
+### 5.2 Endpoints
 
 #### Health Check
 ```http
@@ -168,9 +176,11 @@ Response: {
 
 ---
 
-## 5. Customization Guide
+## 6. Learning Customization Guide
 
-### 5.1 Knowledge Base Setup
+*Once you understand the basics, customize for your domain*
+
+### 6.1 Knowledge Base Setup
 
 1. **Document Format**: Use Markdown for rich formatting
    ```markdown
@@ -204,7 +214,7 @@ Response: {
    # Content starts here
    ```
 
-### 5.2 Prompt Engineering
+### 6.2 Prompt Engineering
 
 Edit `prompt/prompt.yaml`:
 
@@ -241,7 +251,7 @@ examples:
     response: "X is... [Source: document.md]"
 ```
 
-### 5.3 Advanced Configurations
+### 6.3 Advanced Learning Configurations
 
 #### Vector Store Optimization
 ```python
@@ -274,9 +284,11 @@ model = LLM_MODELS.get(query_type, "gpt-4")
 
 ---
 
-## 6. Deployment Strategies
+## 7. Deployment Strategies for Learning
 
-### 6.1 Local Development
+*From local development to production deployment*
+
+### 7.1 Local Development
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -285,7 +297,7 @@ python3 run_etl.py
 python3 server.py
 ```
 
-### 6.2 Docker Deployment
+### 7.2 Docker Deployment
 ```dockerfile
 FROM python:3.11-slim
 WORKDIR /app
@@ -297,7 +309,7 @@ EXPOSE 8000
 CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-### 6.3 Kubernetes Deployment
+### 7.3 Kubernetes Deployment
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -320,7 +332,7 @@ spec:
               key: openai-api-key
 ```
 
-### 6.4 Cloud Deployment Options
+### 7.4 Cloud Deployment Options
 
 | Platform | Service | Configuration |
 |----------|---------|---------------|
@@ -331,9 +343,11 @@ spec:
 
 ---
 
-## 7. Performance Optimization
+## 8. Performance Optimization for Learning
 
-### 7.1 Caching Strategy
+*Understanding how to tune RAG systems*
+
+### 8.1 Caching Strategy
 ```python
 from functools import lru_cache
 import redis
@@ -347,7 +361,7 @@ def get_embedding(text: str):
 cache = redis.Redis(host='localhost', port=6379)
 ```
 
-### 7.2 Batch Processing
+### 8.2 Batch Processing
 ```python
 # Process multiple queries concurrently
 async def batch_query(queries: List[str]):
@@ -355,7 +369,7 @@ async def batch_query(queries: List[str]):
     return await asyncio.gather(*tasks)
 ```
 
-### 7.3 Vector Store Scaling
+### 8.3 Vector Store Scaling
 
 | Knowledge Size | Recommended Solution | Configuration |
 |----------------|---------------------|---------------|
@@ -366,22 +380,24 @@ async def batch_query(queries: List[str]):
 
 ---
 
-## 8. Security Best Practices
+## 9. Security Best Practices for Learning
 
-### 8.1 Authentication & Authorization
+*Essential security knowledge for AI applications*
+
+### 9.1 Authentication & Authorization
 - Implement OAuth2 for production
 - Use short-lived tokens (15-30 minutes)
 - Implement refresh token rotation
 - Add role-based access control (RBAC)
 
-### 8.2 API Security
+### 9.2 API Security
 - Rate limiting per user/IP
 - Request size limits
 - Input sanitization
 - SQL injection prevention
 - XSS protection
 
-### 8.3 Data Security
+### 9.3 Data Security
 - Encrypt sensitive documents
 - Implement data retention policies
 - Audit logging for compliance
@@ -389,9 +405,11 @@ async def batch_query(queries: List[str]):
 
 ---
 
-## 9. Monitoring & Observability
+## 10. Monitoring & Observability for Learning
 
-### 9.1 Metrics to Track
+*Understanding how to monitor AI systems in production*
+
+### 10.1 Metrics to Track
 ```python
 # Application metrics
 - Request rate and latency
@@ -406,7 +424,7 @@ async def batch_query(queries: List[str]):
 - Response quality scores
 ```
 
-### 9.2 Logging Strategy
+### 10.2 Logging Strategy
 ```python
 import structlog
 
@@ -422,7 +440,7 @@ logger.info("query_processed",
 )
 ```
 
-### 9.3 Alerting Rules
+### 10.3 Alerting Rules
 - High error rate (> 1%)
 - Slow response time (> 5s)
 - Low vector store matches
@@ -430,29 +448,42 @@ logger.info("query_processed",
 
 ---
 
-## 10. Future Enhancements
+## 11. Educational Roadmap
 
-### Phase 1: Core Improvements
-- [ ] Streaming responses for better UX
-- [ ] Multi-language support
-- [ ] Document version control
-- [ ] A/B testing framework
+*Your learning journey from starter kit to production system*
 
-### Phase 2: Advanced Features
-- [ ] Fine-tuned models for specific domains
-- [ ] Hybrid search (keyword + semantic)
-- [ ] User feedback integration
-- [ ] Conversation memory
+### Beginner Phase: Master the Basics
+- [ ] Complete the 10-minute setup tutorial
+- [ ] Understand vector embeddings and similarity search
+- [ ] Experiment with different prompt configurations
+- [ ] Replace sample knowledge base with your own content
+- [ ] Learn about chunk sizes and overlap optimization
 
-### Phase 3: Enterprise Features
+### Intermediate Phase: Advanced RAG Concepts
+- [ ] Implement hybrid search (keyword + semantic)
+- [ ] Add streaming responses for better UX
+- [ ] Integrate user feedback mechanisms
+- [ ] Experiment with different LLM models
+- [ ] Build conversation memory features
+
+### Advanced Phase: Production-Ready Systems
+- [ ] Multi-language support implementation
+- [ ] Document version control and updates
+- [ ] A/B testing framework for prompts
+- [ ] Custom model fine-tuning
+- [ ] Advanced analytics and monitoring
+
+### Expert Phase: Enterprise Features
 - [ ] Multi-tenancy support
 - [ ] Advanced analytics dashboard
 - [ ] Custom model deployment
-- [ ] Compliance reporting
+- [ ] Compliance and audit features
 
 ---
 
-## 11. Troubleshooting Guide
+## 12. Troubleshooting Guide for Learners
+
+*Common learning challenges and solutions*
 
 ### Common Issues and Solutions
 
@@ -475,7 +506,9 @@ python3 -c "from ingest import KnowledgeIngester; KnowledgeIngester().test()"
 
 ---
 
-## 12. Contributing Guidelines
+## 13. Contributing Guidelines
+
+*Help others learn RAG technology*
 
 ### Development Workflow
 1. Fork the repository
@@ -506,4 +539,4 @@ python3 demo_runner.py --test-all
 
 ---
 
-**Build intelligent AI assistants for any domain with the Universal RAG API System!**
+**Learn RAG technology by building your own AI assistant with the RAG Starter Kit!**

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Universal RAG API - Command Line Query Tool
+RAG Starter Kit - Command Line Query Tool
 """
 
 import argparse
@@ -13,7 +13,7 @@ import urllib.parse
 
 
 class RAGQueryCLI:
-    """Universal RAG API Command Line Interface"""
+    """RAG Starter Kit Command Line Interface"""
     
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
@@ -124,12 +124,12 @@ class RAGQueryCLI:
 def main():
     """メイン処理"""
     parser = argparse.ArgumentParser(
-        description="Universal RAG API - Command Line Query Tool",
+        description="RAG Starter Kit - Command Line Query Tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 使用例:
   # 質問を引数で指定
-  python3 query_cli.py "What are the main features of this system?"
+  python3 query_cli.py "How do you make oyakodon?"
   
   # 対話モードで質問
   python3 query_cli.py --interactive
@@ -165,7 +165,7 @@ def main():
     
     args = parser.parse_args()
     
-    # Initialize Universal RAG CLI
+    # Initialize RAG CLI
     cli = RAGQueryCLI(args.url)
     
     # ヘルスチェック
@@ -185,7 +185,7 @@ def main():
     
     # 対話モード
     if args.interactive:
-        print("\n🤖 Universal RAG API - Interactive Mode")
+        print("\n🤖 RAG Starter Kit - Interactive Mode")
         print("質問を入力してください。終了するには 'quit' または 'exit' を入力してください。")
         print("-" * 60)
         

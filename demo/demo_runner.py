@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🎯 Universal RAG System - Comprehensive Live Demo Script
+🎯 RAG Starter Kit - Comprehensive Live Demo Script
 """
 
 import os
@@ -19,9 +19,9 @@ load_dotenv()
 def print_banner():
     """Display demo banner"""
     print("=" * 80)
-    print("🎯 Universal RAG System - Comprehensive Live Demo")
+    print("🎯 RAG Starter Kit - Comprehensive Live Demo")
     print("=" * 80)
-    print("🚀 RAG system demonstration with TDD methodology")
+    print("🚀 Educational RAG system demonstration with TDD methodology")
     print("📚 Knowledge Base × LangChain × OpenAI GPT-4")
     print("=" * 80)
 
@@ -347,7 +347,7 @@ def interactive_demo():
 def main():
     """Main execution function"""
     parser = argparse.ArgumentParser(
-        description="Universal RAG System - Comprehensive Live Demo"
+        description="RAG Starter Kit - Comprehensive Live Demo"
     )
     parser.add_argument(
         "--interactive", 
@@ -400,7 +400,7 @@ def main():
         print("\n💡 Manual server startup:")
         print("   python3 server.py")
         print("\n🎯 Next steps:")
-        print("   - Docker deployment: docker build -t universal-rag-api .")
+        print("   - Docker deployment: docker build -t rag-starter-kit .")
         print("   - Integration: Use the REST API endpoints")
         print("   - Customization: Replace knowledge files and prompts")
 

@@ -1,24 +1,50 @@
-# 🚀 Universal RAG API System
+# 🎓 RAG Starter Kit
 
-**A production-ready Retrieval-Augmented Generation (RAG) API system that can be customized for any domain**
+**Learn RAG technology by building your own AI assistant in 10 minutes**
+
+*A beginner-friendly, educational starter template for understanding and implementing Retrieval-Augmented Generation (RAG) systems*
 
 🇺🇸 English | [🇯🇵 日本語](README_ja.md)
 
 ## 📖 Overview
 
-The Universal RAG API System is a flexible, domain-agnostic question-answering system built with modern AI technologies. Simply replace the knowledge base and prompts to create a specialized AI assistant for any field - from technical documentation to customer support, legal documents to medical knowledge.
+The RAG Starter Kit is designed to help developers learn and understand RAG technology through hands-on implementation. Perfect for students, educators, and developers new to AI who want to build their first intelligent assistant.
 
-### 🎯 Key Features
+**🎯 What you'll learn:**
+- How RAG (Retrieval-Augmented Generation) works
+- Vector embeddings and semantic search
+- LLM integration and prompt engineering
+- Building production-ready APIs with FastAPI
+- Authentication and security best practices
 
-- **🧠 Domain-Agnostic Design**: Easily adaptable to any knowledge domain
-- **🔍 Advanced RAG Technology**: LangChain + FAISS + OpenAI Embeddings
-- **🔐 JWT Authentication**: Secure API access out of the box
-- **⚡ High Performance**: Optimized for fast response times
-- **📚 Flexible Knowledge Base**: Support for Markdown documents
-- **🎨 Customizable Prompts**: YAML-based prompt configuration
-- **🏗️ Production-Ready**: Built with FastAPI for scalability
+**🚀 What you'll build:**
+A complete AI assistant that can answer questions about your custom knowledge base in under 10 minutes.
 
-## 🏗️ Architecture
+### 🎯 Why RAG Starter Kit?
+
+- **📚 Educational First**: Clear, commented code with step-by-step explanations
+- **🚀 Quick Start**: From zero to working AI assistant in 10 minutes
+- **🔧 Hands-On Learning**: Build while you learn core RAG concepts
+- **🌉 Bridge to Production**: Foundation for more complex systems
+- **📖 Complete Tutorial**: Includes Japanese recipe knowledge base as example
+- **🎨 Customizable**: Easy to adapt for your own use cases
+- **🔐 Security Included**: JWT authentication and best practices
+- **💡 Best Practices**: Modern Python, FastAPI, and AI development patterns
+
+## 🎯 プロジェクトの特徴
+
+### ✨ 独自の価値
+
+- 🎓 **教育的優秀性**: TDD手法、包括的ドキュメント
+- ⚡ **即座に利用可能**: 複雑な設定不要
+- 🎨 **カスタマイズ性**: YAML設定、ドメイン非依存
+- 🍜 **実例豊富**: 日本料理レシピによる実用デモ
+- 🔄 **効率的更新**: インクリメンタル更新機能
+
+
+## 🏗️ Learning Architecture
+
+*Understanding how RAG systems work under the hood*
 
 ```
 📱 Client Application
@@ -34,22 +60,26 @@ The Universal RAG API System is a flexible, domain-agnostic question-answering s
 
 ### 🔧 Technology Stack
 
-- **Backend**: FastAPI + Uvicorn
-- **RAG Engine**: LangChain + RetrievalQA
-- **Vector DB**: FAISS (Facebook AI Similarity Search)
-- **Embeddings**: OpenAI text-embedding-3-small
-- **LLM**: OpenAI GPT-4 (configurable)
-- **Authentication**: JWT (JSON Web Tokens)
-- **Testing**: pytest + TDD methodology
+*Modern, industry-standard tools for learning*
 
-## 🚀 Quick Start
+- **Backend**: FastAPI + Uvicorn *(Learn API development)*
+- **RAG Engine**: LangChain + RetrievalQA *(Understand RAG patterns)*
+- **Vector DB**: FAISS *(Learn semantic search)*
+- **Embeddings**: OpenAI text-embedding-3-small *(Understand vector representations)*
+- **LLM**: OpenAI GPT-4 *(Experience with modern AI)*
+- **Authentication**: JWT *(Learn security fundamentals)*
+- **Testing**: pytest + TDD *(Best practices included)*
+
+## 🚀 Quick Start - Your First AI Assistant
+
+*Follow these steps to build your first RAG-powered AI assistant*
 
 ### 1. Environment Setup
 
 ```bash
-# Clone repository
+# Clone the starter kit
 git clone <repository-url>
-cd rag-api
+cd rag-starter-kit
 
 # Create Python virtual environment (Python 3.11 recommended)
 python3.11 -m venv venv
@@ -72,67 +102,118 @@ CHUNK_SIZE=800
 CHUNK_OVERLAP=100
 RETRIEVAL_K=6
 LLM_TEMPERATURE=0.3
-LLM_MODEL=gpt-4
+LLM_MODEL=gpt-4o
 ```
 
-### 3. Prepare Your Knowledge Base
+### 3. Explore the Sample Knowledge Base
 
-1. Clear the existing knowledge base:
-   ```bash
-   rm knowledge/*.md
-   ```
+**📚 Pre-loaded Example: Japanese Recipe Collection**
 
-2. Add your domain-specific documents:
-   ```bash
-   cp /path/to/your/documents/*.md knowledge/
-   ```
-
-3. Customize the prompt configuration:
-   ```bash
-   vim prompt/prompt.yaml
-   ```
-
-### 4. Build Vector Store
+The starter kit comes with a complete Japanese recipe knowledge base to help you understand how RAG works:
 
 ```bash
+# Explore the sample knowledge base
+ls knowledge/
+# You'll see: 01_basic_rice_dishes.md, 02_noodle_dishes.md, etc.
+
+# View a sample document
+cat knowledge/01_basic_rice_dishes.md
+```
+
+**🎯 Learning Opportunity**: See how structured knowledge is organized for optimal RAG retrieval.
+
+**🔄 Customize Later**: Replace with your own documents once you understand the structure.
+
+### 4. Build Vector Store *(Learn Embeddings)*
+
+```bash
+# Transform documents into searchable vectors
 python3 run_etl.py
+
+# 🎓 What happens here:
+# 1. Documents are split into chunks
+# 2. Each chunk becomes a vector embedding
+# 3. FAISS index is created for fast similarity search
 ```
 
-### 5. Start the Server
+### 5. Start Your AI Assistant
 
 ```bash
+# Launch your RAG-powered API
 python3 server.py
+
+# 🎉 Your AI assistant is now running!
+# Visit: http://localhost:8000/docs for interactive API documentation
 ```
 
-### 6. Test the API
+### 6. Ask Your First Question
 
 ```bash
 # Health check
 curl http://localhost:8000/health
 
-# Command-line query tool
-python3 query_cli.py "Your question here"
+# Try asking about Japanese cuisine
+python3 query_cli.py "How do you make oyakodon?"
 
-# Interactive mode
+# Interactive mode for exploration
 python3 query_cli.py --interactive
+
+# 🎓 Try these learning questions:
+# "What are the main types of Japanese rice dishes?"
+# "How do you make perfect sushi rice?"
+# "What's the difference between ramen and udon?"
 ```
 
-## 🎨 Customization Guide
+## 🎨 Customization Guide - Make It Your Own
 
-### Adapting to Your Domain
+*Once you understand the basics, customize for your domain*
 
-1. **Knowledge Base**: Place your Markdown documents in the `knowledge/` directory
-2. **Prompt Engineering**: Edit `prompt/prompt.yaml` to define your AI assistant's behavior
-3. **Model Selection**: Update `LLM_MODEL` in `.env` (e.g., gpt-4, gpt-3.5-turbo)
-4. **Embedding Strategy**: Adjust `CHUNK_SIZE` and `CHUNK_OVERLAP` for your content type
+### 🔄 Adapting to Your Domain
 
-### Example Domains
+*Step-by-step guide to creating your custom AI assistant*
 
-- **Technical Documentation**: Software manuals, API docs, troubleshooting guides
-- **Customer Support**: FAQs, product information, support procedures
-- **Legal Documents**: Contracts, policies, regulatory compliance
-- **Medical Knowledge**: Clinical guidelines, drug information, protocols
-- **Educational Content**: Course materials, textbooks, research papers
+1. **📚 Replace Knowledge Base**: 
+   ```bash
+   # Clear sample data
+   rm knowledge/*.md
+   
+   # Add your documents
+   cp /path/to/your/docs/*.md knowledge/
+   ```
+
+2. **🎨 Customize AI Behavior**:
+   ```bash
+   # Edit the prompt configuration
+   vim prompt/prompt.yaml
+   
+   # 🎓 Learning tip: See how prompts shape AI responses
+   ```
+
+3. **⚙️ Optimize Performance**:
+   ```bash
+   # Adjust settings in .env
+   LLM_MODEL=gpt-3.5-turbo  # For cost-effective learning
+   CHUNK_SIZE=1000          # For longer documents
+   ```
+
+4. **🔄 Rebuild and Test**:
+   ```bash
+   python3 run_etl.py  # Rebuild vector store
+   python3 server.py   # Test your custom assistant
+   ```
+
+### 🎯 Learning Project Ideas
+
+*Practice RAG development with these domains*
+
+- **📖 Personal Knowledge Base**: Your notes, research, documentation
+- **🏢 Company FAQ**: Internal knowledge, policies, procedures
+- **🎓 Study Assistant**: Course materials, textbooks, research papers
+- **🍳 Recipe Collection**: Like our Japanese example, but your cuisine
+- **💼 Technical Documentation**: API docs, troubleshooting guides
+- **📚 Book Summary**: Create assistants for your favorite books
+
+**🎓 Educational Value**: Each domain teaches different aspects of RAG optimization
 
 ## 📊 API Specification
 
@@ -166,7 +247,9 @@ curl -X POST "http://localhost:8000/query" \
 }
 ```
 
-## 🧪 Testing
+## 🧪 Testing - Learn Through Validation
+
+*Understanding how to test AI systems*
 
 ```bash
 # Run all tests
@@ -177,7 +260,9 @@ python3 -m pytest tests/test_ingest.py -v
 python3 -m pytest tests/test_server.py -v
 ```
 
-## 🎯 Performance Optimization
+## 🎯 Performance Optimization - Advanced Learning
+
+*Master the art of RAG tuning*
 
 ### Vector Store Optimization
 
@@ -190,7 +275,9 @@ python3 -m pytest tests/test_server.py -v
 - **Temperature**: Lower for factual responses (0.1-0.3), higher for creative (0.7-0.9)
 - **Model Selection**: GPT-4 for complex reasoning, GPT-3.5-turbo for speed
 
-## 🐳 Docker Deployment
+## 🐳 Docker Deployment - Production Skills
+
+*Learn containerization for AI applications*
 
 ```dockerfile
 FROM python:3.11-slim
@@ -208,11 +295,13 @@ CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
 
 Build and run:
 ```bash
-docker build -t universal-rag-api .
-docker run -p 8000:8000 --env-file .env universal-rag-api
+docker build -t rag-starter-kit .
+docker run -p 8000:8000 --env-file .env rag-starter-kit
 ```
 
-## 🔒 Security Considerations
+## 🔒 Security Considerations - Essential Knowledge
+
+*Learn to build secure AI applications*
 
 ### 🚨 **IMPORTANT: Before Deployment**
 
@@ -253,21 +342,27 @@ docker run -p 8000:8000 --env-file .env universal-rag-api
 - **Environment Variables**: All sensitive data configurable via environment variables
 - **Default Credentials**: Changed from hardcoded to environment-based authentication
 
-## 📈 Monitoring and Logging
+## 📈 Monitoring and Logging - Production Skills
+
+*Learn to monitor AI systems in production*
 
 - **Request Logging**: Track API usage and performance
 - **Error Monitoring**: Capture and alert on failures
 - **Vector Store Metrics**: Monitor retrieval effectiveness
 - **LLM Usage**: Track token consumption and costs
 
-## 🚀 Scaling Strategies
+## 🚀 Scaling Strategies - Advanced Topics
+
+*From starter kit to production system*
 
 1. **Horizontal Scaling**: Deploy multiple API instances behind a load balancer
 2. **Vector Store**: Consider migration to distributed solutions (Chroma, Pinecone)
 3. **Caching**: Implement Redis for frequent queries
 4. **Async Processing**: Use background jobs for heavy operations
 
-## 🤝 Contributing
+## 🤝 Contributing - Join the Learning Community
+
+*Help others learn RAG technology*
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -281,7 +376,9 @@ docker run -p 8000:8000 --env-file .env universal-rag-api
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🛠️ Troubleshooting
+## 🛠️ Troubleshooting - Common Learning Issues
+
+*Solutions to help you keep learning*
 
 ### Common Issues
 
@@ -298,6 +395,31 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**🚀 Build your own domain-specific AI assistant in minutes!**
+## 🎓 Next Steps - Your Learning Journey
+
+**🚀 You've built your first RAG system! What's next?**
+
+### Immediate Next Steps:
+1. **🔄 Customize**: Replace the Japanese recipes with your own knowledge base
+2. **🎨 Experiment**: Try different prompt configurations
+3. **📊 Optimize**: Adjust chunk sizes and retrieval parameters
+4. **🔐 Secure**: Implement proper authentication for production use
+
+### Advanced Learning:
+- **🔧 Enterprise Features**: Study [danny-avila/rag_api](https://github.com/danny-avila/rag_api) for production-grade implementation
+- **🧠 Custom Models**: Learn to fine-tune models for your domain
+- **📈 Scaling**: Explore distributed vector stores and multi-model architectures
+- **🔍 Hybrid Search**: Combine semantic and keyword search strategies
+
+### Community Resources:
+- **💬 Discussions**: Share your customizations and ask questions
+- **📚 Examples**: See how others have adapted the starter kit
+- **🎯 Challenges**: Weekly RAG implementation challenges
+
+---
+
+**🎉 Congratulations! You've learned RAG technology by building!**
+
+*RAG Starter Kit - From Zero to AI Assistant in 10 minutes*
 
 *Powered by LangChain, FastAPI, and OpenAI*

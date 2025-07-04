@@ -285,8 +285,8 @@ async def lifespan(app: FastAPI):
 
 # FastAPIアプリケーション
 app = FastAPI(
-    title="Universal RAG API",
-    description="A flexible knowledge-based question answering system",
+    title="RAG Starter Kit",
+    description="Educational RAG system for learning AI development",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -324,9 +324,10 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
 async def root():
     """Root endpoint"""
     return {
-        "message": "Universal RAG API",
+        "message": "RAG Starter Kit",
         "version": "1.0.0",
-        "status": "running"
+        "status": "running",
+        "description": "Educational RAG system for learning AI development"
     }
 
 
@@ -386,7 +387,7 @@ async def login(username: str, password: str):
 if __name__ == "__main__":
     import uvicorn
     
-    print("🚀 Universal RAG Server starting...")
+    print("🚀 RAG Starter Kit Server starting...")
     uvicorn.run(
         app,
         host=Config.HOST,
