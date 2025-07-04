@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 RAG Starter Kit Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -36,6 +37,128 @@
         @keyframes blink {
             0%, 50% { border-color: #3B82F6; }
             51%, 100% { border-color: transparent; }
+        }
+        
+        /* Markdown Styles */
+        .markdown-content {
+            line-height: 1.6;
+            color: #374151;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        .markdown-content h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1F2937;
+            border-bottom: 2px solid #E5E7EB;
+            padding-bottom: 0.5rem;
+        }
+        
+        .markdown-content h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            margin-top: 1.5rem;
+            color: #1F2937;
+        }
+        
+        .markdown-content h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            margin-top: 1rem;
+            color: #374151;
+        }
+        
+        .markdown-content p {
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-content ul, .markdown-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .markdown-content li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .markdown-content blockquote {
+            border-left: 4px solid #3B82F6;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            background-color: #F8FAFC;
+            font-style: italic;
+        }
+        
+        .markdown-content code {
+            background-color: #F3F4F6;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875rem;
+            color: #DC2626;
+        }
+        
+        .markdown-content pre {
+            background-color: #1F2937;
+            color: #F3F4F6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        
+        .markdown-content pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+            font-size: inherit;
+        }
+        
+        .markdown-content strong {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        
+        .markdown-content em {
+            font-style: italic;
+        }
+        
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .markdown-content th, .markdown-content td {
+            border: 1px solid #D1D5DB;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        
+        .markdown-content th {
+            background-color: #F9FAFB;
+            font-weight: 600;
+        }
+        
+        .markdown-content a {
+            color: #3B82F6;
+            text-decoration: underline;
+        }
+        
+        .markdown-content a:hover {
+            color: #2563EB;
+        }
+        
+        .markdown-content hr {
+            border: none;
+            border-top: 1px solid #E5E7EB;
+            margin: 1.5rem 0;
         }
     </style>
 </head>
@@ -100,7 +223,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Your Question</label>
                         <textarea id="query" 
                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none"
-                                  placeholder="Enter your question here... (⌘+Enter to submit)" 
+                                  placeholder="Enter your question here... (Enter to submit)" 
                                   rows="3">How to make Oyakodon?</textarea>
                         <p class="text-xs text-gray-500 mt-1 keyboard-tip">
                             💡 Tip: Press <kbd class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">⌘</kbd> + <kbd class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Enter</kbd> to submit quickly
@@ -138,7 +261,7 @@
                 
                 <!-- Response Area -->
                 <div id="response-area" 
-                     class="w-full min-h-[200px] p-4 border border-gray-200 rounded-lg bg-gray-50 font-mono text-sm whitespace-pre-wrap overflow-y-auto focus:outline-none">
+                     class="w-full min-h-[200px] p-4 border border-gray-200 rounded-lg bg-white overflow-y-auto focus:outline-none markdown-content">
                     <span class="text-gray-500 italic">Response will appear here...</span>
                 </div>
                 
@@ -164,6 +287,15 @@
     </div>
 
     <script>
+        // Configure marked.js for better security and appearance
+        marked.setOptions({
+            breaks: true,        // Convert \n to <br>
+            gfm: true,          // GitHub Flavored Markdown
+            headerIds: false,   // Don't generate header IDs for security
+            sanitize: false,    // We trust our own LLM content
+            silent: true        // Don't throw on parsing errors
+        });
+
         let accessToken = null;
         const serverUrl = 'http://localhost:8000';
 
@@ -269,6 +401,7 @@
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let isFirstToken = true;
+                let accumulatedText = '';
 
                 while (true) {
                     const { done, value } = await reader.read();
@@ -294,11 +427,32 @@
                                 } else if (data.type === 'token') {
                                     if (isFirstToken) {
                                         responseArea.innerHTML = '';
+                                        accumulatedText = '';
                                         isFirstToken = false;
                                     }
-                                    responseArea.textContent += data.content;
+                                    
+                                    // Accumulate the text
+                                    accumulatedText += data.content;
+                                    
+                                    // Convert to markdown and display
+                                    try {
+                                        const markdownHtml = marked.parse(accumulatedText);
+                                        responseArea.innerHTML = markdownHtml;
+                                    } catch (markdownError) {
+                                        // Fallback to plain text if markdown parsing fails
+                                        responseArea.textContent = accumulatedText;
+                                    }
+                                    
                                     responseArea.scrollTop = responseArea.scrollHeight;
                                 } else if (data.type === 'complete') {
+                                    // Final markdown conversion on completion
+                                    try {
+                                        const finalMarkdownHtml = marked.parse(accumulatedText);
+                                        responseArea.innerHTML = finalMarkdownHtml;
+                                    } catch (markdownError) {
+                                        responseArea.textContent = accumulatedText;
+                                    }
+                                    
                                     statusDiv.innerHTML = `
                                         <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
                                             <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
@@ -350,9 +504,14 @@
 
         // Keyboard shortcut handler
         function handleKeyboardShortcut(event) {
-            // Check for Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux)
-            if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
-                event.preventDefault(); // Prevent default Enter behavior
+            // Check for Enter key
+            if (event.key === 'Enter') {
+                // Ignore Enter key during IME composition (Japanese input conversion)
+                if (event.isComposing || event.keyCode === 229) {
+                    return;
+                }
+                
+                event.preventDefault(); // Prevent default Enter behavior (new line)
                 
                 // Only submit if button is enabled
                 const submitBtn = document.getElementById('stream-btn');
@@ -362,26 +521,20 @@
             }
         }
 
-        // Update keyboard shortcut hint based on platform
+        // Update keyboard shortcut hint
         function updateKeyboardHint() {
-            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
             const tipElement = document.querySelector('.keyboard-tip');
             const queryElement = document.getElementById('query');
             
-            if (isMac) {
-                tipElement.innerHTML = '💡 Tip: Press <kbd class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">⌘</kbd> + <kbd class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Enter</kbd> to submit quickly';
-                queryElement.placeholder = 'Enter your question here... (⌘+Enter to submit)';
-            } else {
-                tipElement.innerHTML = '💡 Tip: Press <kbd class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Ctrl</kbd> + <kbd class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Enter</kbd> to submit quickly';
-                queryElement.placeholder = 'Enter your question here... (Ctrl+Enter to submit)';
-            }
+            tipElement.innerHTML = '💡 Tip: Press <kbd class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Enter</kbd> to submit quickly';
+            queryElement.placeholder = 'Enter your question here... (Enter to submit)';
         }
 
         // Initialize - disable submit button and add keyboard shortcut
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('stream-btn').disabled = true;
             
-            // Update keyboard hint based on platform
+            // Update keyboard hint
             updateKeyboardHint();
             
             // Add keyboard shortcut to query textarea
