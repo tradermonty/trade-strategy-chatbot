@@ -10,13 +10,14 @@ import requests
 import sys
 from datetime import datetime
 import urllib.parse
+from config import Config
 
 
 class RAGQueryCLI:
     """RAG Starter Kit Command Line Interface"""
     
-    def __init__(self, base_url="http://localhost:8000"):
-        self.base_url = base_url
+    def __init__(self, base_url=None):
+        self.base_url = base_url or Config.CLIENT_URL
         self.access_token = None
         
     def login(self, username="investor", password="trade-strategy-2025"):
@@ -159,8 +160,8 @@ def main():
     
     parser.add_argument(
         "--url",
-        default="http://localhost:8000",
-        help="RAGサーバーのURL (デフォルト: http://localhost:8000)"
+        default=Config.CLIENT_URL,
+        help=f"RAGサーバーのURL (デフォルト: {Config.CLIENT_URL})"
     )
     
     args = parser.parse_args()

@@ -72,6 +72,15 @@ mkdir -p vector_store/medical
 | `PROMPT_FILE` | Name of the prompt configuration file | `prompt.yaml` | `medical_assistant.yaml` |
 | `VECTOR_STORE_PATH` | Directory for processed embeddings | `vector_store` | `vector_store/medical` |
 
+### Server Configuration
+
+| Parameter | Description | Default | Example |
+|-----------|-------------|---------|---------|
+| `HOST` | Server host address | `0.0.0.0` | `localhost` |
+| `PORT` | Server port number | `8000` | `8080` |
+| `SERVER_URL` | Public server URL | `http://0.0.0.0:8000` | `https://api.example.com` |
+| `CLIENT_URL` | Client connection URL | `http://localhost:8000` | `https://api.example.com` |
+
 ### Processing Settings
 
 | Parameter | Description | Default | Recommended Range |
@@ -123,6 +132,21 @@ CHUNK_OVERLAP=120        # Overlap for code context
 RETRIEVAL_K=8            # Comprehensive technical info
 LLM_TEMPERATURE=0.4      # Balanced for examples
 LLM_MODEL=gpt-4o         # Latest model with code understanding
+```
+
+### Production Deployment
+```bash
+# Production server configuration
+HOST=0.0.0.0
+PORT=8000
+SERVER_URL=https://your-domain.com
+CLIENT_URL=https://your-domain.com
+
+# For local development
+HOST=localhost
+PORT=8000
+SERVER_URL=http://localhost:8000
+CLIENT_URL=http://localhost:8000
 ```
 
 ## 🔄 Switching Between Configurations

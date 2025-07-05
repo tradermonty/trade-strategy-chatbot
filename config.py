@@ -30,4 +30,8 @@ class Config:
     
     # サーバー設定
     HOST = os.getenv("HOST", "0.0.0.0")
-    PORT = int(os.getenv("PORT", "8000")) 
+    PORT = int(os.getenv("PORT", "8000"))
+    SERVER_URL = os.getenv("SERVER_URL", f"http://{os.getenv('HOST', '0.0.0.0')}:{os.getenv('PORT', '8000')}")
+    
+    # クライアント設定
+    CLIENT_URL = os.getenv("CLIENT_URL", "http://localhost:8000")  # CLIやテスト用のデフォルトURL 
