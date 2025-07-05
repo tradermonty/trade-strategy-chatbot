@@ -19,7 +19,7 @@ class RAGQueryCLI:
         self.base_url = base_url
         self.access_token = None
         
-    def login(self, username=None, password=None):
+    def login(self, username="investor", password="trade-strategy-2025"):
         """ログインしてアクセストークンを取得"""
         # Get authentication information from environment variables（引数で上書き可能）
         username = username or os.getenv("DEMO_USERNAME", "admin")
@@ -27,8 +27,8 @@ class RAGQueryCLI:
         
         try:
             url = f"{self.base_url}/login"
-            params = {"username": username, "password": password}
-            response = requests.post(url, params=params)
+            data = {"username": username, "password": password}
+            response = requests.post(url, data=data)
             
             if response.status_code == 200:
                 data = response.json()
