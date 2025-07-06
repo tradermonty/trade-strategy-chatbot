@@ -177,7 +177,9 @@
         <!-- Main Content -->
         <div class="space-y-6">
             <!-- Authentication Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+            <!-- デモモード：認証フォームを非表示にして自動ログイン -->
+            <!-- To restore authentication form, remove the 'hidden' class below -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hidden">
                 <div class="flex items-center mb-4">
                     <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
                         🔐
@@ -297,8 +299,43 @@
         });
 
         let accessToken = null;
-        const serverUrl = 'https://trade-strategy-chatbot.onrender.com';
+        const serverUrl = 'http://localhost:8000';
 
+        // Demo mode: Auto login on page load
+        // To restore manual login, remove the auto-login and uncomment the form
+        async function autoLogin() {
+            // Using default credentials for demo
+            const username = 'investor';
+            const password = 'trade-strategy-2025';
+            
+            try {
+                const response = await fetch(`${serverUrl}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    accessToken = data.access_token;
+                    
+                    // Enable submit button
+                    const submitBtn = document.getElementById('stream-btn');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+                    
+                    console.log('Auto login successful');
+                } else {
+                    console.error('Auto login failed');
+                }
+            } catch (error) {
+                console.error('Auto login error:', error);
+            }
+        }
+
+        // Original login function (for manual login when form is restored)
         async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -542,6 +579,10 @@
             
             // Also add to document for global shortcut
             document.addEventListener('keydown', handleKeyboardShortcut);
+            
+            // Demo mode: Auto login on page load
+            // To restore manual login, comment out the line below
+            autoLogin();
         });
     </script>
 </body>
