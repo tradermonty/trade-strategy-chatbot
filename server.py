@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Depends, status, Form
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
@@ -532,6 +532,12 @@ async def login(username: str = Form(...), password: str = Form(...)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
         )
+
+
+@app.get("/RAG_demo.html")
+async def demo_html():
+    """Serve demo HTML file"""
+    return FileResponse("RAG_demo.html", media_type="text/html")
 
 
 if __name__ == "__main__":
